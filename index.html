@@ -13,7 +13,8 @@
         }
         body {
             font-family: 'Lexend', sans-serif;
-            touch-action: manipulation;
+            touch-action: none; /* Critical for mobile: stops browser handling of touch */
+            overscroll-behavior: none; /* Prevents pull-to-refresh */
             user-select: none;
             background-color: #020617;
             color: #f8fafc;
@@ -62,7 +63,6 @@
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
         
-        /* Floating Orange Points */
         .floating-point {
             position: absolute;
             left: 50%;
@@ -82,7 +82,6 @@
             100% { transform: translate(-50%, -150px) scale(1.6); opacity: 0; }
         }
 
-        /* Elegant Blue Thin Scrollbar */
         .blue-scrollbar::-webkit-scrollbar { height: 3px; }
         .blue-scrollbar::-webkit-scrollbar-track { background: rgba(30, 41, 59, 0.4); border-radius: 10px; }
         .blue-scrollbar::-webkit-scrollbar-thumb { background: #0ea5e9; border-radius: 10px; }
@@ -94,7 +93,6 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Logo Grid Icon (Row 2 and Col 2 active) */
         .logo-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -117,7 +115,6 @@
 </head>
 <body class="flex flex-col items-center">
 
-    <!-- Splash Screen -->
     <div id="splash-screen" class="fixed inset-0 bg-slate-950 z-[200] flex flex-col items-center p-4 text-center overflow-y-auto">
         <div class="m-auto flex flex-col items-center w-full max-w-sm py-8">
             <div class="relative mb-3">
@@ -141,7 +138,6 @@
         </div>
     </div>
 
-    <!-- Centered How to Play -->
     <div id="how-to-overlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-[210] hidden flex-col items-center justify-center p-6 text-center">
         <div class="w-full max-w-sm flex flex-col items-center justify-center">
             <h2 class="text-4xl font-800 text-sky-400 tracking-tighter lowercase mb-10">Instructions</h2>
@@ -163,7 +159,6 @@
         </div>
     </div>
 
-    <!-- HUD Header -->
     <header class="w-full max-w-md flex justify-between items-center px-4 py-4 shrink-0 overflow-visible">
         <div class="flex items-center gap-1.5">
             <div class="logo-grid scale-90 mr-1">
@@ -201,7 +196,6 @@
                     </div>
                     <div id="next-letter" class="w-11 h-11 bg-sky-500 rounded-xl flex items-center justify-center text-2xl font-800 text-slate-950 shadow-lg">?</div>
                 </div>
-                <!-- Swap Counter -->
                 <div id="swap-counter" class="hidden flex flex-col items-end min-w-[50px]">
                     <span id="swap-penalty" class="text-2xl font-800 text-rose-400 leading-none">0</span>
                     <span class="text-[7px] font-bold text-slate-500 uppercase tracking-tighter">Penalty</span>
@@ -214,7 +208,6 @@
             <div id="word-feedback" class="absolute -top-12 left-1/2 -translate-x-1/2 z-20 text-sky-400 font-800 text-xl tracking-tighter text-center pointer-events-none opacity-0 transition-all duration-300">COOL!</div>
         </div>
 
-        <!-- Full width Action Bar -->
         <div class="w-full shrink-0 mb-4 mt-2">
             <button id="done-action-btn" class="w-full py-4 bg-emerald-500 text-slate-950 rounded-xl font-800 uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all opacity-30 cursor-not-allowed">
                 PLACE LETTERS
@@ -230,17 +223,13 @@
         </div>
     </main>
 
-    <!-- Results Modal -->
     <div id="result-modal" class="fixed inset-0 bg-slate-950/98 backdrop-blur-2xl hidden flex-col items-center justify-center p-4 z-[300]">
         <div class="w-full max-w-sm flex flex-col items-center text-center py-8 rounded-[2.5rem] hud-glass px-4">
             <h2 class="text-4xl font-800 text-sky-400 tracking-tighter lowercase leading-none">gridee</h2>
             <p id="result-game-num-display" class="text-[8px] text-slate-500 uppercase font-bold tracking-[0.4em] mb-4">Challenge #0</p>
-            
             <div id="share-preview" class="grid grid-cols-4 gap-1 bg-slate-900/50 p-1 rounded-lg mb-6 w-24 h-24"></div>
-
             <div id="final-score" class="text-8xl font-800 tracking-tighter text-white leading-none">0</div>
             <span class="text-slate-500 uppercase tracking-[0.2em] text-[10px] font-800 mb-6">Total Score</span>
-            
             <div class="w-full space-y-1.5 border-y border-slate-800 py-4 text-[10px] font-bold uppercase mb-6 text-left px-4">
                 <div class="flex justify-between"><span>Words Found</span><span id="stat-word-count">0</span></div>
                 <div class="flex justify-between text-emerald-400"><span>Placement Bonus</span><span id="stat-place-bonus">0</span></div>
@@ -263,7 +252,7 @@
 
         const FUNNY_FINISHERS = [
             "GOOD TO GO", "LET'S COOK THIS SUCKER", "SCORE ME!", "THAT'S ENOUGH", 
-            "BRING ON THE RESULTS", "COOKED TO PERFECTION", "I'M DONE DEEP FRYING"
+            "BRING ON THE RESULTS", "COOKED TO PERFECTION", "I'M DONE DEEP FRYYING"
         ];
 
         const PHASES = { PLACE: 0, REARRANGE: 1, SWIPE: 2, RESULT: 3 };
@@ -309,24 +298,11 @@
         const generateLetterSet = () => {
             const vPool = "AEIOU".split(""), cPool = "BCDFGHJKLMNPQRSTVWXYZ".split("");
             let result = [];
-            
-            // Randomly choose vowel count: 6 or 7
             const vowelCount = seededRandom() > 0.5 ? 7 : 6;
-            
-            // Guaranteed 'E' for accessibility
             result.push('E');
-            
-            // Fill remaining vowels
-            for (let i = 1; i < vowelCount; i++) {
-                result.push(vPool[Math.floor(seededRandom() * vPool.length)]);
-            }
-            
-            // Fill rest with consonants
+            for (let i = 1; i < vowelCount; i++) result.push(vPool[Math.floor(seededRandom() * vPool.length)]);
             const consonantCount = 16 - vowelCount;
-            for (let i = 0; i < consonantCount; i++) {
-                result.push(cPool[Math.floor(seededRandom() * cPool.length)]);
-            }
-            
+            for (let i = 0; i < consonantCount; i++) result.push(cPool[Math.floor(seededRandom() * cPool.length)]);
             return result.sort(() => seededRandom() - 0.5);
         };
 
@@ -377,7 +353,6 @@
                 document.getElementById('word-discovery').classList.remove('hidden');
                 queueBox.classList.add('hidden');
                 swapBox.classList.add('hidden');
-                
                 if (foundWords.length > 0) {
                     if (doneBtn.innerText === "I'M DONE REARRANGING" || doneBtn.innerText === "BEGIN SWIPING") {
                        doneBtn.innerText = FUNNY_FINISHERS[Math.floor(Math.random() * FUNNY_FINISHERS.length)];
@@ -396,22 +371,41 @@
                 cell.className = 'grid-cell bg-slate-800 rounded-2xl flex items-center justify-center text-3xl font-800 cursor-pointer select-none touch-none text-slate-100 shadow-inner';
                 cell.id = `cell-${i}`;
                 cell.dataset.index = i;
-                cell.addEventListener('mousedown', () => handleInteraction(i, 'start'));
-                cell.addEventListener('mouseenter', () => handleInteraction(i, 'move'));
-                cell.addEventListener('touchstart', (e) => { e.preventDefault(); handleInteraction(i, 'start'); });
+                
+                // Optimized touch listeners
+                cell.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    handleInteraction(i, 'start');
+                }, { passive: false });
+
+                cell.addEventListener('mousedown', (e) => {
+                    handleInteraction(i, 'start');
+                });
+
+                cell.addEventListener('mouseenter', () => {
+                    handleInteraction(i, 'move');
+                });
+
                 container.appendChild(cell);
             }
+            
+            // Global listeners for end and move
             window.addEventListener('mouseup', () => handleInteraction(null, 'end'));
+            window.addEventListener('touchend', () => handleInteraction(null, 'end'), { passive: false });
+            
             container.addEventListener('touchmove', (e) => {
+                e.preventDefault(); // Stop mobile scrolling
                 const touch = e.touches[0];
                 const el = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (el?.classList.contains('grid-cell')) handleInteraction(parseInt(el.dataset.index), 'move');
-            });
+                if (el?.classList.contains('grid-cell')) {
+                    const idx = parseInt(el.dataset.index);
+                    handleInteraction(idx, 'move');
+                }
+            }, { passive: false });
         };
 
         const checkPlacementBonus = (idx) => {
             const r = Math.floor(idx / 4), c = idx % 4;
-            
             const rowIndices = [r*4, r*4+1, r*4+2, r*4+3];
             if (!rowIndices.some(i => grid[i] === null)) {
                 const rowStr = rowIndices.map(i => grid[i]).join("");
@@ -423,7 +417,6 @@
                     showFeedback("PLACEMENT BONUS!", "text-emerald-400");
                 }
             }
-
             const colIndices = [c, c+4, c+8, c+12];
             if (!colIndices.some(i => grid[i] === null)) {
                 const colStr = colIndices.map(i => grid[i]).join("");
@@ -443,35 +436,24 @@
             grid.forEach((char, i) => {
                 const cell = document.getElementById(`cell-${i}`);
                 cell.classList.remove('bg-sky-500', 'text-slate-900', 'swiping-active', 'border-sky-400', 'cell-preview');
-                if (char) {
-                    cell.innerText = char;
-                } else if (currentPhase === PHASES.PLACE && hoveredCellIdx === i && next) {
+                if (char) { cell.innerText = char; }
+                else if (currentPhase === PHASES.PLACE && hoveredCellIdx === i && next) {
                     cell.innerText = next; cell.classList.add('cell-preview');
-                } else {
-                    cell.innerText = '';
-                }
+                } else { cell.innerText = ''; }
                 if (currentPhase === PHASES.SWIPE && currentSwipePath.includes(i)) cell.classList.add('swiping-active');
                 if (currentPhase === PHASES.REARRANGE && swapStartIdx === i) cell.classList.add('bg-sky-500', 'text-slate-900', 'border-sky-400');
             });
         };
 
         const handleInteraction = (idx, type) => {
-            if (idx !== null) {
-                if (currentPhase === PHASES.PLACE) hudMessageVisible = (placementIndex < 16);
-                else hudMessageVisible = false;
-            }
-
             if (currentPhase === PHASES.PLACE) {
                 if (type === 'start' && idx !== null && !grid[idx]) {
                     grid[idx] = lettersToPlace[placementIndex++];
                     checkPlacementBonus(idx);
-                    if (placementIndex === 16) {
-                        currentPhase = PHASES.REARRANGE;
-                        hudMessageVisible = true;
-                    }
+                    if (placementIndex === 16) currentPhase = PHASES.REARRANGE;
                     hoveredCellIdx = null; renderGrid(); updateUI(); updateQueue();
-                } else if (type === 'move') { hoveredCellIdx = idx; renderGrid(); }
-                else if (type === 'leave' || type === 'end') { hoveredCellIdx = null; renderGrid(); }
+                } else if (type === 'move') { if(hoveredCellIdx !== idx) { hoveredCellIdx = idx; renderGrid(); } }
+                else if (type === 'end') { hoveredCellIdx = null; renderGrid(); }
             } else if (currentPhase === PHASES.REARRANGE && type === 'start' && idx !== null) {
                 if (swapStartIdx === null) swapStartIdx = idx;
                 else if (swapStartIdx === idx) swapStartIdx = null;
@@ -479,8 +461,7 @@
                     const temp = grid[idx];
                     grid[idx] = grid[swapStartIdx];
                     grid[swapStartIdx] = temp;
-                    penaltyPoints += 2;
-                    swapStartIdx = null;
+                    penaltyPoints += 2; swapStartIdx = null;
                     showFloatingPoint("-2", idx);
                     renderGrid(); updateUI();
                 }
@@ -575,7 +556,6 @@
         const showResults = async () => {
             currentPhase = PHASES.RESULT;
             document.getElementById('result-modal').classList.replace('hidden', 'flex');
-            
             let rowsFull = 0, colsFull = 0;
             for(let i=0; i<4; i++) {
                 const rowStr = grid.slice(i*4, i*4+4).join("");
@@ -586,24 +566,20 @@
             }
             if (rowsFull === 4 && colsFull === 4) gridBonusScore = 100;
             else if (rowsFull === 4 || colsFull === 4) gridBonusScore = 20;
-
             document.getElementById('grid-bonus-row').classList.toggle('hidden', gridBonusScore === 0);
             document.getElementById('result-game-num-display').innerText = isPracticeMode ? "Practice Mode" : `Challenge #${getGameNumber()}`;
-
             const sharePrev = document.getElementById('share-preview');
             sharePrev.innerHTML = '';
             for(let i=0; i<16; i++) {
                 const d = document.createElement('div');
-                d.className = `letter w-full h-full bg-slate-800 rounded border border-slate-700 flex items-center justify-center text-[8px] font-800 ${wordUsedCells.has(i) ? 'bg-sky-500 text-slate-900 border-sky-400' : ''}`;
+                d.className = `w-full h-full bg-slate-800 rounded border border-slate-700 flex items-center justify-center text-[8px] font-800 ${wordUsedCells.has(i) ? 'bg-sky-500 text-slate-900 border-sky-400' : ''}`;
                 d.innerText = grid[i].toUpperCase(); sharePrev.appendChild(d);
             }
-
             await animateValue('stat-word-count', 0, foundWords.length, 500);
             await animateValue('stat-place-bonus', 0, placeBonusScore, 500);
             await animateValue('stat-line-bonus', 0, lineBonusScore, 500);
             await animateValue('stat-deduction', 0, -penaltyPoints, 400);
             if (gridBonusScore > 0) await animateValue('stat-grid-bonus', 0, gridBonusScore, 400);
-            
             const total = Math.max(0, wordScore + placeBonusScore + lineBonusScore + gridBonusScore - penaltyPoints);
             await animateValue('final-score', 0, total, 1000);
         };
@@ -615,12 +591,10 @@
                 if (placementDetectedWords.has(i)) gridVisual += "🟩";
                 else if (wordUsedCells.has(i)) gridVisual += "🟦";
                 else gridVisual += "⬛";
-                
                 if ((i + 1) % 4 === 0) gridVisual += "\n";
                 else gridVisual += " ";
             }
             const text = `gridee #${getGameNumber()}\nScore: ${total} | Swaps: -${penaltyPoints}\n\n${gridVisual}\nPlay at: https://planomy.github.io/gridee`;
-            
             const el = document.createElement('textarea');
             el.value = text; document.body.appendChild(el); el.select();
             document.execCommand('copy'); document.body.removeChild(el);
