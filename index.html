@@ -11,6 +11,12 @@
             --sky-glow: 0 0 20px rgba(56, 189, 248, 0.4);
             --gold-glow: 0 0 25px rgba(251, 191, 36, 0.5);
         }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
         body {
             font-family: 'Lexend', sans-serif;
             touch-action: none;
@@ -18,10 +24,8 @@
             user-select: none;
             background-color: #020617;
             color: #f8fafc;
-            /* Use dvh for dynamic viewport height to fix the Samsung clipping issue */
             height: 100dvh;
             width: 100vw;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -113,12 +117,21 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Ensure the main container distributes space better for Samsung */
+        /* KEY FIX: Ensure the container doesn't overflow the viewport */
         #game-container {
             padding-bottom: env(safe-area-inset-bottom);
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
+            min-height: 0; /* Allow container to shrink */
+        }
+
+        /* KEY FIX: Scale the grid based on available height */
+        #game-grid {
+            max-height: 42dvh; /* Limits grid height so tray always fits below */
+            aspect-ratio: 1 / 1;
+            width: auto;
+            margin: 0 auto;
         }
     </style>
 </head>
@@ -212,8 +225,7 @@
             </div>
         </div>
 
-        <!-- Added flex-shrink-0 to ensure grid stays consistent size -->
-        <div id="game-grid-container" class="relative group flex-shrink-0 mb-1">
+        <div id="game-grid-container" class="relative group shrink-1 min-h-0 mb-1">
             <div id="game-grid" class="grid grid-cols-4 gap-1 bg-slate-900/50 p-1 rounded-[1.25rem] border border-slate-800/50 backdrop-blur-sm"></div>
             <div id="word-feedback" class="absolute -top-12 left-1/2 -translate-x-1/2 z-20 text-sky-400 font-800 text-xl tracking-tighter text-center pointer-events-none opacity-0 transition-all duration-300">COOL!</div>
         </div>
@@ -224,8 +236,7 @@
             </button>
         </div>
 
-        <!-- Found words section now adapts slightly to Samsung's smaller heights -->
-        <div id="word-discovery" class="hidden shrink-0 flex flex-col mb-2 min-h-[40px]">
+        <div id="word-discovery" class="hidden shrink-0 flex flex-col mb-4 min-h-[40px]">
             <div class="flex justify-between items-center mb-1.5 px-1">
                 <h3 class="text-slate-500 text-[9px] font-800 uppercase tracking-widest">Found Words</h3>
                 <span id="word-count-badge" class="bg-sky-500/10 text-sky-500 text-[9px] px-2 py-0.5 rounded-full font-bold">0</span>
@@ -234,7 +245,6 @@
         </div>
     </main>
 
-    <!-- Rest of your game logic (Dictionary, Letters, UI code) remains untouched -->
     <div id="result-modal" class="fixed inset-0 bg-slate-950/98 backdrop-blur-2xl hidden flex-col items-center justify-center p-4 z-[300]">
         <div class="w-full max-w-sm flex flex-col items-center text-center py-8 rounded-[2.5rem] hud-glass px-4">
             <h2 class="text-4xl font-800 text-sky-400 tracking-tighter lowercase leading-none">gridee</h2>
