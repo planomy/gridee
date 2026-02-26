@@ -8,66 +8,38 @@
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --sky-glow: 0 0 20px rgba(56, 189, 248, 0.4);
-            --gold-glow: 0 0 25px rgba(251, 191, 36, 0.5);
+            --sky-glow: 0 0 20px rgba(56, 189, 248, 0.3);
+            --gold-glow: 0 0 25px rgba(251, 191, 36, 0.4);
+            --gold-metallic: linear-gradient(145deg, #fbbf24, #b45309);
+            --pink-purple: linear-gradient(135deg, #a21caf, #6b21a8);
         }
         html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+            height: 100%; margin: 0; padding: 0; overflow: hidden;
+            background-color: #020617;
         }
         body {
-            font-family: 'Lexend', sans-serif;
-            touch-action: none;
-            overscroll-behavior: none;
-            user-select: none;
-            background-color: #020617;
-            color: #f8fafc;
-            height: 100dvh;
-            width: 100vw;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: 'Lexend', sans-serif; touch-action: none; overscroll-behavior: none; user-select: none;
+            color: #f8fafc; height: 100dvh; width: 100vw;
+            display: flex; flex-direction: column; align-items: center;
         }
+        
+        /* Layout Strategy - Tightened for larger grid */
+        header { padding-top: max(8px, env(safe-area-inset-top)); margin-bottom: 4px; z-index: 50; }
+        #game-container { margin-top: 0; padding-top: 0px; }
+
+        /* Grid Styles */
         .grid-cell {
-            aspect-ratio: 1 / 1;
-            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.1s ease;
-            border: 2px solid rgba(30, 41, 59, 0.3);
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            aspect-ratio: 1 / 1; transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.1s ease;
+            border: 2px solid rgba(30, 41, 59, 0.3); position: relative; display: flex; align-items: center; justify-content: center;
         }
-        .letter-container {
-            pointer-events: none;
-            z-index: 5;
-        }
-        .cell-preview {
-            opacity: 0.4;
-            color: #38bdf8;
-            transform: scale(0.9);
-            background-color: rgba(56, 189, 248, 0.1);
-        }
+        .letter-container { pointer-events: none; z-index: 5; }
+        .cell-preview { opacity: 0.4; color: #38bdf8; transform: scale(0.9); background-color: rgba(56, 189, 248, 0.1); }
         .swiping-active {
-            background-color: #38bdf8 !important;
-            color: #020617 !important;
-            transform: scale(0.95);
-            box-shadow: var(--sky-glow);
-            z-index: 10;
-            border-color: #7dd3fc !important;
+            background-color: #38bdf8 !important; color: #020617 !important; transform: scale(0.95);
+            box-shadow: var(--sky-glow); z-index: 10; border-color: #7dd3fc !important;
         }
-        .gold-flash {
-            animation: gold-burst 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-        }
-        @keyframes gold-burst {
-            0% { background-color: #fbbf24; transform: scale(1.1); box-shadow: var(--gold-glow); color: #451a03; }
-            40% { background-color: #fcd34d; transform: scale(1.05); }
-            100% { background-color: #1e293b; transform: scale(1); box-shadow: 0 0 0 transparent; }
-        }
-        .shake {
-            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
-        }
+        
+        .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake {
             10%, 90% { transform: translate3d(-1px, 0, 0); }
             20%, 80% { transform: translate3d(2px, 0, 0); }
@@ -76,64 +48,69 @@
         }
         
         .floating-point {
-            position: absolute;
-            pointer-events: none;
-            font-weight: 600; /* Less bold (adjusted from 800) */
-            z-index: 100;
-            color: #fbbf24; 
-            font-size: 1.4rem; 
-            text-shadow: 0 2px 12px rgba(0, 0, 0, 1);
-            animation: driftUp 1.44s ease-out forwards; /* 20% slower (adjusted from 1.2s) */
-            white-space: nowrap;
+            position: absolute; pointer-events: none; font-weight: 800; z-index: 100;
+            color: #fbbf24; font-size: 1.6rem; text-shadow: 0 4px 12px rgba(0, 0, 0, 1);
+            animation: driftUp 1.44s ease-out forwards; white-space: nowrap;
         }
-        @keyframes driftUp {
-            0% { transform: translate(-50%, 0); opacity: 1; }
-            100% { transform: translate(-50%, -80px); opacity: 0; }
-        }
+        @keyframes driftUp { 0% { transform: translate(-50%, 0); opacity: 1; } 100% { transform: translate(-50%, -100px); opacity: 0; } }
 
-        .blue-scrollbar::-webkit-scrollbar { height: 3px; }
-        .blue-scrollbar::-webkit-scrollbar-track { background: rgba(30, 41, 59, 0.4); border-radius: 10px; }
-        .blue-scrollbar::-webkit-scrollbar-thumb { background: #0ea5e9; border-radius: 10px; }
-        .blue-scrollbar { scrollbar-width: thin; scrollbar-color: #0ea5e9 rgba(30, 41, 59, 0.4); }
-
-        .hud-glass {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .logo-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2px;
-            width: 24px;
-            height: 24px;
-        }
-        .logo-cell { background: #1e293b; border-radius: 1px; }
-        .logo-cell.active { background: #38bdf8; }
-
-        .tally-animating {
-            color: #fbbf24 !important;
-            transform: scale(1.1);
-            transition: transform 0.1s ease;
-        }
-
+        .tally-animating { color: #fbbf24 !important; transform: scale(1.1); transition: transform 0.1s ease; }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        #game-container {
-            padding-bottom: env(safe-area-inset-bottom);
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            min-height: 0; 
+        /* Increased Grid Size by 20% (40dvh -> 48dvh) */
+        #game-grid { max-height: 48dvh; aspect-ratio: 1 / 1; width: auto; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 4px; }
+
+        .shout-chip { flex: 0 0 auto; padding: 8px 16px; border-radius: 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.85rem; transition: all 0.2s ease; cursor: pointer; color: #f8fafc; white-space: nowrap; }
+        .shout-chip.active { background: #38bdf8; color: #020617; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
+        
+        .custom-shout-input { 
+            background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; 
+            padding: 12px 16px; color: #f8fafc; width: 100%; outline: none; font-family: 'Lexend', sans-serif; 
+            margin-top: 12px; transition: border-color 0.2s;
+        }
+        .custom-shout-input:focus { border-color: #38bdf8; }
+        .custom-shout-input::placeholder { color: rgba(255, 255, 255, 0.3); }
+
+        .badge-slot { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; width: 44px; height: 52px; }
+        .badge-shield { position: absolute; width: 100%; height: 100%; background: var(--gold-metallic); clip-path: polygon(0% 0%, 100% 0%, 100% 70%, 50% 100%, 0% 70%); box-shadow: inset 0 2px 10px rgba(255,255,255,0.4); }
+        .badge-icon-overlay { position: relative; z-index: 2; font-size: 1.2rem; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); margin-top: -8px; }
+        .badge-slot.locked { filter: grayscale(1); opacity: 0.05; transform: scale(0.85); }
+        .badge-slot.unlocked { 
+            filter: grayscale(0); opacity: 1; 
+            animation: premium-reveal 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        
+        @keyframes premium-reveal {
+            0% { transform: scale(0.8) rotate(-10deg); filter: brightness(2) drop-shadow(0 0 20px gold); }
+            50% { transform: scale(1.2) rotate(5deg); }
+            100% { transform: scale(1) rotate(0); filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.4)); }
         }
 
-        #game-grid {
-            max-height: 42dvh; 
-            aspect-ratio: 1 / 1;
-            width: auto;
-            margin: 0 auto;
+        .badge-counter { position: absolute; top: -2px; right: -8px; background: #38bdf8; color: #020617; font-size: 8px; font-weight: 900; padding: 1px 4px; border-radius: 6px; border: 1px solid #020617; z-index: 10; pointer-events: none; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        
+        .timer-circle { transform: rotate(-90deg); filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.4)); }
+        .timer-bg { fill: none; stroke: rgba(255, 255, 255, 0.05); stroke-width: 4; }
+        .timer-progress { fill: none; stroke: #38bdf8; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 0.2s linear; }
+
+        .results-overlay { background: #020617 !important; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+        #time-up-overlay { position: absolute; inset: 0; background: rgba(2,6,23,0.92); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; border-radius: 1.5rem; }
+        
+        /* Lifted HUD Slightly higher (100px -> 80px) */
+        #hud-bar { min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px; }
+
+        .record-banner-active { 
+            animation: spotlight-reveal 2.0s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+        }
+        @keyframes spotlight-reveal {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            10% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); pointer-events: none; }
         }
     </style>
 </head>
@@ -141,15 +118,28 @@
 
     <div id="splash-screen" class="fixed inset-0 bg-slate-950 z-[200] flex flex-col items-center p-4 text-center overflow-y-auto">
         <div class="m-auto flex flex-col items-center w-full max-sm py-8">
-            <div class="relative mb-3">
-                <div class="absolute -inset-4 bg-sky-500/20 blur-3xl rounded-full"></div>
+            <div class="relative mb-6">
+                <div class="absolute -inset-10 bg-sky-500/20 blur-3xl rounded-full"></div>
                 <div class="flex items-center gap-4 relative">
-                    <div class="logo-grid scale-150 mr-4">
-                        <div class="logo-cell"></div><div class="logo-cell active"></div><div class="logo-cell"></div><div class="logo-cell"></div>
-                        <div class="logo-cell active"></div><div class="logo-cell active"></div><div class="logo-cell active"></div><div class="logo-cell active"></div>
-                        <div class="logo-cell"></div><div class="logo-cell active"></div><div class="logo-cell"></div><div class="logo-cell"></div>
-                        <div class="logo-cell"></div><div class="logo-cell active"></div><div class="logo-cell"></div><div class="logo-cell"></div>
-                    </div>
+                    <!-- Logo: 4x4 grid with row 2 and col 2 highlighted -->
+                    <svg width="48" height="48" viewBox="0 0 40 40" class="shrink-0 text-white/10">
+                        <rect x="0" y="0" width="8" height="8" fill="currentColor" rx="1" />
+                        <rect x="10" y="0" width="8" height="8" fill="#38bdf8" rx="1" />
+                        <rect x="20" y="0" width="8" height="8" fill="currentColor" rx="1" />
+                        <rect x="30" y="0" width="8" height="8" fill="currentColor" rx="1" />
+                        <rect x="0" y="10" width="8" height="8" fill="#38bdf8" rx="1" />
+                        <rect x="10" y="10" width="8" height="8" fill="#38bdf8" rx="1" />
+                        <rect x="20" y="10" width="8" height="8" fill="#38bdf8" rx="1" />
+                        <rect x="30" y="10" width="8" height="8" fill="#38bdf8" rx="1" />
+                        <rect x="0" y="20" width="8" height="8" fill="currentColor" rx="1" />
+                        <rect x="10" y="20" width="8" height="8" fill="#38bdf8" rx="1" />
+                        <rect x="20" y="20" width="8" height="8" fill="currentColor" rx="1" />
+                        <rect x="30" y="20" width="8" height="8" fill="currentColor" rx="1" />
+                        <rect x="0" y="30" width="8" height="8" fill="currentColor" rx="1" />
+                        <rect x="10" y="30" width="8" height="8" fill="#38bdf8" rx="1" />
+                        <rect x="20" y="30" width="8" height="8" fill="currentColor" rx="1" />
+                        <rect x="30" y="30" width="8" height="8" fill="currentColor" rx="1" />
+                    </svg>
                     <h1 class="text-6xl font-800 tracking-tighter text-white lowercase leading-none">gridee</h1>
                 </div>
             </div>
@@ -162,36 +152,32 @@
         </div>
     </div>
 
-    <div id="how-to-overlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-[210] hidden flex-col items-center justify-center p-6 text-center">
-        <div class="w-full max-w-sm flex flex-col items-center justify-center">
+    <!-- Instructions Overlay -->
+    <div id="how-to-overlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-[210] hidden flex items-center justify-center p-6">
+        <div class="w-full max-w-sm flex flex-col items-center text-center">
             <h2 class="text-4xl font-800 text-sky-400 tracking-tighter lowercase mb-10">Instructions</h2>
-            <div class="space-y-6 text-left mb-10 w-full px-6 text-xs">
+            <div class="space-y-6 text-left mb-10 w-full text-xs px-2">
                 <div class="flex gap-4 items-start">
                     <span class="w-8 h-8 shrink-0 bg-sky-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">1</span>
-                    <p class="text-slate-300 leading-relaxed font-semibold">Place letters one-by-one. Forming 4-letter words <span class="text-emerald-400">during placement</span> earns a massive <span class="text-emerald-400 font-bold">+10 Early Bird bonus each!</span></p>
+                    <p class="text-slate-300 leading-relaxed font-semibold">Place letters. Forming words during placement earns <span class="text-emerald-400 font-bold">+10 Early Bird bonus!</span></p>
                 </div>
                 <div class="flex gap-4 items-start">
                     <span class="w-8 h-8 shrink-0 bg-amber-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">2</span>
-                    <p class="text-slate-300 leading-relaxed font-semibold">Rearrange letters strategically. Each swap costs <span class="text-rose-400 font-bold">2 points</span>. Accuracy is everything.</p>
+                    <p class="text-slate-300 leading-relaxed font-semibold">Swap strategically. Each swap costs <span class="text-rose-400 font-bold">2 points</span>.</p>
                 </div>
                 <div class="flex gap-4 items-start">
                     <span class="w-8 h-8 shrink-0 bg-emerald-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">3</span>
-                    <p class="text-slate-300 leading-relaxed font-semibold">Swipe in any direction to form words. 4 full rows OR columns scores <span class="text-amber-400 font-bold">+20</span>. Full grid (4 rows AND 4 columns) scores <span class="text-sky-400 font-bold">+100 - the Holy Grail!</span></p>
+                    <p class="text-slate-300 leading-relaxed font-semibold">Swipe words in <span class="text-sky-400 font-bold">60 seconds</span>. Full grid clear scores <span class="text-sky-400 font-bold">+100!</span></p>
                 </div>
             </div>
             <button id="close-how-to" class="px-12 py-4 bg-sky-500 text-slate-950 rounded-2xl font-800 uppercase tracking-widest text-xs active:scale-95 transition-all">Got it</button>
         </div>
     </div>
 
-    <header class="w-full max-w-md flex justify-between items-center px-4 py-4 shrink-0 overflow-visible">
+    <header class="w-full max-w-md flex justify-between items-center px-4 shrink-0 overflow-visible">
         <div class="flex items-center gap-1.5">
-            <div class="logo-grid scale-90 mr-1">
-                <div class="logo-cell"></div><div class="logo-cell active"></div><div class="logo-cell"></div><div class="logo-cell"></div>
-                <div class="logo-cell active"></div><div class="logo-cell active"></div><div class="logo-cell active"></div><div class="logo-cell active"></div>
-                <div class="logo-cell"></div><div class="logo-cell active"></div><div class="logo-cell"></div><div class="logo-cell"></div>
-                <div class="logo-cell"></div><div class="logo-cell active"></div><div class="logo-cell"></div><div class="logo-cell"></div>
-            </div>
             <h1 class="text-2xl font-800 tracking-tighter text-white leading-none">gridee</h1>
+            <div id="badge-bar-hud" class="flex gap-1 ml-1.5 opacity-80 h-3 cursor-pointer"></div>
         </div>
         <div class="text-right">
             <div id="score-display" class="text-2xl font-800 text-white leading-none">0</div>
@@ -200,363 +186,263 @@
     </header>
 
     <main id="game-container" class="w-full max-w-md flex flex-col flex-1 opacity-0 transition-opacity duration-500 px-4 overflow-visible relative">
-        <div class="flex justify-between gap-1 mb-2 shrink-0">
-            <div id="step-1" class="h-0.5 flex-1 bg-sky-500 rounded-full transition-colors duration-500"></div>
-            <div id="step-2" class="h-0.5 flex-1 bg-sky-500/20 rounded-full transition-colors duration-500"></div>
-            <div id="step-3" class="h-0.5 flex-1 bg-sky-500/20 rounded-full transition-colors duration-500"></div>
+        <div class="flex justify-between gap-1 mb-2 shrink-0 relative h-6 items-center">
+            <div id="step-1-progress" class="h-1.5 flex-1 bg-sky-500/20 rounded-full overflow-hidden relative">
+                <div id="progress-bar-fill" class="absolute inset-0 bg-sky-500 w-0 transition-all duration-300"></div>
+            </div>
+            <div id="word-feedback" class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-[60] bg-black border border-orange-500/30 px-3 py-0.5 rounded-full font-800 text-[10px] tracking-widest text-center pointer-events-none opacity-0 transition-all duration-300 whitespace-nowrap text-orange-500 shadow-2xl">COOL!</div>
         </div>
 
-        <div id="hud-bar" class="flex items-center justify-between mb-3 hud-glass p-2.5 rounded-2xl shrink-0 h-16">
-            <div class="flex items-center gap-2 flex-1 overflow-hidden pr-2">
-                <span id="step-number" class="text-3xl font-800 text-orange-500 shrink-0">1.</span>
-                <p id="top-msg" class="text-[14px] font-800 uppercase tracking-widest text-orange-500 leading-tight">PLACE ALL LETTERS</p>
-            </div>
-            
-            <div id="right-hud-content" class="flex items-center gap-3">
-                <div id="queue-box" class="flex items-center gap-3">
-                    <div class="flex flex-col items-center">
-                        <p class="text-[7px] font-800 text-slate-500 uppercase tracking-widest mb-0.5">Next</p>
-                        <div class="flex gap-1" id="mini-queue"></div>
-                    </div>
-                    <div id="next-letter" class="w-11 h-11 bg-sky-500 rounded-xl flex items-center justify-center text-2xl font-800 text-slate-950 shadow-lg">?</div>
+        <div id="hud-bar">
+            <div id="right-hud-content" class="flex flex-col items-center gap-6 w-full">
+                <div id="queue-box" class="flex flex-row items-center justify-center gap-4 transition-opacity duration-300">
+                    <div class="flex gap-1.5" id="mini-queue"></div>
+                    <div id="next-letter" class="w-16 h-16 bg-sky-500 rounded-2xl flex items-center justify-center text-4xl font-800 text-slate-950 shadow-[0_0_30px_rgba(56,189,248,0.3)]">?</div>
                 </div>
-                <div id="swap-counter" class="hidden flex flex-col items-end min-w-[50px]">
-                    <span id="swap-penalty" class="text-2xl font-800 text-rose-400 leading-none">0</span>
-                    <span class="text-[7px] font-bold text-slate-500 uppercase tracking-tighter">Penalty</span>
+                
+                <div id="swap-counter" class="hidden flex flex-col items-center transition-opacity duration-300">
+                    <span id="swap-penalty" class="text-3xl font-800 text-rose-400 leading-none">0</span>
+                    <span class="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">Penalty</span>
+                </div>
+
+                <div id="circular-timer-box" class="hidden relative w-20 h-20 flex items-center justify-center">
+                    <svg class="timer-circle" width="80" height="80">
+                        <circle class="timer-bg" cx="40" cy="40" r="36"></circle>
+                        <circle id="timer-progress" class="timer-progress" cx="40" cy="40" r="36"></circle>
+                    </svg>
+                    <span id="timer-text" class="absolute text-xl font-800 text-sky-400 tracking-tighter">60</span>
                 </div>
             </div>
         </div>
 
         <div id="game-grid-container" class="relative group shrink-1 min-h-0 mb-1 overflow-visible">
-            <div id="game-grid" class="grid grid-cols-4 gap-1 bg-slate-900/50 p-1 rounded-[1.25rem] border border-slate-800/50 backdrop-blur-sm"></div>
-            <!-- Feedback Message with Black Container to mask background lines -->
-            <div id="word-feedback" class="absolute -top-24 left-1/2 -translate-x-1/2 z-[60] bg-slate-950 px-6 py-2 rounded-2xl border border-slate-800 font-800 text-xl tracking-tighter text-center pointer-events-none opacity-0 transition-all duration-300 shadow-2xl whitespace-nowrap">COOL!</div>
+            <div id="game-grid"></div>
+            <div id="time-up-overlay">
+                <button id="time-up-btn" class="bg-slate-950 border-2 border-sky-500/30 text-white font-800 px-10 py-5 rounded-3xl shadow-2xl scale-125 transition-transform uppercase tracking-tighter">TIME UP!</button>
+            </div>
         </div>
 
-        <div class="w-full shrink-0 mb-2 mt-2">
-            <button id="done-action-btn" class="w-full py-4 bg-emerald-500 text-slate-950 rounded-xl font-800 uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all opacity-30 cursor-not-allowed">
-                PLACE LETTERS
+        <!-- Slightly shorter Action Bar (py-5 -> py-4) -->
+        <div class="w-full shrink-0 mb-1 mt-2">
+            <button id="done-action-btn" style="background: var(--pink-purple);" class="w-full py-4 text-white rounded-2xl font-800 uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all opacity-0 pointer-events-none">
+                SWAP LETTERS, CLICK WHEN DONE
             </button>
         </div>
 
-        <div id="word-discovery" class="hidden shrink-0 flex flex-col mb-4 min-h-[40px]">
-            <div class="flex justify-between items-center mb-1.5 px-1">
+        <div id="word-discovery" class="hidden shrink-0 flex flex-col mb-4 min-h-[50px]">
+            <div class="flex justify-between items-center mb-1 px-1">
                 <h3 class="text-slate-500 text-[9px] font-800 uppercase tracking-widest">Found Words</h3>
-                <span id="word-count-badge" class="bg-sky-500/10 text-sky-500 text-[9px] px-2 py-0.5 rounded-full font-bold">0</span>
+                <span id="word-count-badge" class="bg-sky-500/10 text-sky-500 text-[10px] px-2.5 py-0.5 rounded-full font-bold">0</span>
             </div>
-            <div id="word-columns" class="flex flex-nowrap gap-1 overflow-x-auto blue-scrollbar pb-3 items-center"></div>
+            <div id="word-columns" class="flex flex-nowrap gap-1.5 overflow-x-auto no-scrollbar pb-3 items-center"></div>
         </div>
     </main>
 
-    <div id="result-modal" class="fixed inset-0 bg-slate-950/98 backdrop-blur-2xl hidden flex-col items-center justify-center p-4 z-[300]">
-        <div class="w-full max-w-sm flex flex-col items-center text-center py-8 rounded-[2.5rem] hud-glass px-4">
-            <h2 class="text-4xl font-800 text-sky-400 tracking-tighter lowercase leading-none">gridee</h2>
-            <p id="result-game-num-display" class="text-[8px] text-slate-500 uppercase font-bold tracking-[0.4em] mb-4">Challenge #0</p>
-            <div id="share-preview" class="grid grid-cols-4 gap-1 bg-slate-900/50 p-1 rounded-lg mb-6 w-24 h-24"></div>
-            <div id="final-score" class="text-8xl font-800 tracking-tighter text-white leading-none">0</div>
-            <span class="text-slate-500 uppercase tracking-[0.2em] text-[10px] font-800 mb-6">Total Score</span>
-            <div class="w-full space-y-1.5 border-y border-slate-800 py-4 text-[10px] font-bold uppercase mb-6 text-left px-4">
-                <div class="flex justify-between"><span>Words Found</span><span id="stat-word-count">0</span></div>
-                <div class="flex justify-between text-emerald-400"><span>Placement Bonus</span><span id="stat-place-bonus">0</span></div>
-                <div class="flex justify-between text-amber-400"><span>Line Bonus</span><span id="stat-line-bonus">0</span></div>
-                <div class="flex justify-between text-rose-400"><span>Swap Penalty</span><span id="stat-deduction">0</span></div>
-                <div id="grid-bonus-row" class="flex justify-between text-sky-400 hidden"><span>Grid Clear</span><span id="stat-grid-bonus">0</span></div>
+    <!-- Results Modal - FIXED ALIGNMENT & MOBILE FIT -->
+    <div id="result-modal" class="fixed inset-0 hidden flex-col items-center p-4 z-[300] results-overlay">
+        <div class="w-full max-w-sm flex flex-col items-center text-center pt-6 pb-8 px-4 relative">
+            
+            <!-- Optimized Stats Row -->
+            <div class="flex gap-6 mb-4 items-center justify-center w-full">
+                <div class="flex flex-col items-center">
+                    <span id="current-streak" class="text-5xl font-800 text-white leading-none">0</span>
+                    <span class="text-[9px] text-slate-500 uppercase tracking-[0.3em] mt-1.5 font-800">Streak 🔥</span>
+                </div>
+                <div class="h-10 w-[1px] bg-white/10"></div>
+                <div class="flex flex-col items-center">
+                    <span id="best-score" class="text-5xl font-800 text-white leading-none">0</span>
+                    <span class="text-[9px] text-slate-500 uppercase tracking-[0.3em] mt-1.5 font-800">Best 🏆</span>
+                </div>
             </div>
-            <button id="share-btn" class="w-full py-4 bg-emerald-500 rounded-2xl font-800 text-slate-950 uppercase tracking-tighter text-lg mb-2 shadow-lg active:scale-95 transition-all">SHARE RESULTS</button>
-            <button id="play-practice-again-btn" class="text-slate-600 text-[9px] font-800 uppercase underline mt-2">New Practice Game</button>
+
+            <!-- Trophy Room -->
+            <div class="relative w-full mb-6">
+                <div id="trophy-room" class="flex gap-3 bg-slate-900/40 p-4 px-5 rounded-2xl border border-white/5 items-end h-16 justify-center">
+                    <div id="badge-architect" class="badge-slot locked" onclick="showBadgeInfo('architect')"><div class="badge-shield"></div><span class="badge-icon-overlay">🏆</span><span class="badge-counter hidden">0</span></div>
+                    <div id="badge-century" class="badge-slot locked" onclick="showBadgeInfo('century')"><div class="badge-shield"></div><span class="badge-icon-overlay">💯</span><span class="badge-counter hidden">0</span></div>
+                    <div id="badge-warp" class="badge-slot locked" onclick="showBadgeInfo('warp')"><div class="badge-shield"></div><span class="badge-icon-overlay">🚀</span><span class="badge-counter hidden">0</span></div>
+                    <div id="badge-tactician" class="badge-slot locked" onclick="showBadgeInfo('tactician')"><div class="badge-shield"></div><span class="badge-icon-overlay">4️⃣</span><span class="badge-counter hidden">0</span></div>
+                    <div id="badge-pure" class="badge-slot locked" onclick="showBadgeInfo('pure')"><div class="badge-shield"></div><span class="badge-icon-overlay">🚫</span><span class="badge-counter hidden">0</span></div>
+                </div>
+                <div id="new-record-badge" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-orange-500 text-slate-950 px-8 py-2 rounded-full font-800 text-sm shadow-2xl z-50 whitespace-nowrap scale-115 record-banner-active">NEW RECORD!</div>
+            </div>
+            
+            <!-- Final Score Area -->
+            <div class="flex flex-col items-center mb-4">
+                <div id="final-score" class="text-8xl font-800 tracking-tighter text-white leading-none">0</div>
+                <span class="text-slate-500 uppercase tracking-[0.4em] text-[10px] font-800 mt-2">Total Score</span>
+            </div>
+            
+            <!-- Messaging Section -->
+            <div class="w-full mb-6 text-left">
+                <div id="shout-chips" class="flex gap-2 overflow-x-auto pb-2 no-scrollbar mb-3">
+                    <button class="shout-chip active" onclick="updateShout(this, '')">None</button>
+                    <button class="shout-chip" onclick="updateShout(this, 'Morning routine ✅')">Morning routine ✅</button>
+                    <button class="shout-chip" onclick="updateShout(this, 'coffee soon? ☕')">coffee soon? ☕</button>
+                    <button class="shout-chip" onclick="updateShout(this, 'Mind = Blown 🤯')">Mind = Blown 🤯</button>
+                    <button class="shout-chip" onclick="updateShout(this, 'Calculated move. 📐')">Calculated move. 📐</button>
+                    <button class="shout-chip" onclick="updateShout(this, 'Rematch? 👊👊')">Rematch? 👊👊</button>
+                </div>
+                <input type="text" id="shout-input" class="custom-shout-input text-xs" placeholder="Type a custom message..." maxlength="40" oninput="customShout(this.value)">
+            </div>
+
+            <!-- Action Buttons -->
+            <button id="share-btn" style="background: var(--pink-purple);" class="w-full py-5 rounded-3xl font-800 text-white uppercase tracking-tighter text-xl mb-4 shadow-lg active:scale-95 transition-all">SHARE RESULTS</button>
+            <button id="play-practice-again-btn" class="text-slate-600 text-[10px] font-800 uppercase underline tracking-widest">New Practice Game</button>
         </div>
     </div>
 
     <div id="toast" class="fixed top-10 left-1/2 -translate-x-1/2 bg-white text-slate-950 px-8 py-3 rounded-full font-800 shadow-2xl opacity-0 transition-all pointer-events-none z-[400] text-xs">Copied!</div>
 
     <script>
+        // --- Utilities ---
         const getGameNumber = () => {
             const epoch = new Date('2025-02-20').getTime();
             return Math.floor((new Date().getTime() - epoch) / (1000 * 60 * 60 * 24)) + 1;
         };
 
-        const FUNNY_FINISHERS = [
-            "GOOD TO GO", "LET'S COOK THIS SUCKER", "SCORE ME GAZ!", "THAT'S ENOUGH", "THAT'LL DO PIG", "LET'S STICK A FORK IN IT!", "YEP DONE!",
-            "BRING ON THE RESULTS", "COOKED TO PERFECTION", "I'M DONE DEEP FRYING"
-        ];
-
+        const STATS_KEY = "gridee_device_stats_v3";
+        const TIME_UP_PHRASES = ["That's it amigo", "Whoah stop!", "That'll do", "Muchos gracias", "Stop, in the name of love"];
+        const CORE_WORDS = ["MAKE", "BAND", "WORD", "PLAY", "GOLD", "GRID", "COOL", "LUCK", "BOLD", "PURE", "FAST", "TIME", "WINS", "GOOD", "DONE", "ROAD", "BIRD", "EARL", "BLUE", "FIRE"];
+        
+        let highScore = 0, streak = 0, lastPlayedDate = null;
+        let badgesEarned = { century: 0, architect: 0, warp: 0, tactician: 0, pure: 0 };
         const PHASES = { PLACE: 0, REARRANGE: 1, SWIPE: 2, RESULT: 3 };
-        let currentPhase = PHASES.PLACE;
-        let grid = Array(16).fill(null);
-        let lettersToPlace = [];
-        let placementIndex = 0;
-        let penaltyPoints = 0;
-        let wordScore = 0;
-        let placeBonusScore = 0;
-        let lineBonusScore = 0;
-        let gridBonusScore = 0;
-        let foundWords = [];
-        let placementBonusLines = new Set();
-        let placementDetectedWords = new Set();
-        let swapStartIdx = null;
-        let wordUsedCells = new Set();
-        let isPracticeMode = false;
-        let isSwiping = false;
-        let currentSwipePath = [];
-        let swipeWord = "";
-        let hoveredCellIdx = null;
-        let hudMessageVisible = true;
+        let currentPhase = PHASES.PLACE, grid = Array(16).fill(null), lettersToPlace = [], placementIndex = 0;
+        let penaltyPoints = 0, wordScore = 0, placeBonusScore = 0, lineBonusScore = 0, gridBonusScore = 0;
+        let foundWords = [], placementBonusLines = new Set(), placementDetectedWords = new Set();
+        let swapStartIdx = null, wordUsedCells = new Set(), isPracticeMode = false, isSwiping = false;
+        let currentSwipePath = [], swipeWord = "", hoveredCellIdx = null;
+        let activeShout = "", customShoutText = "";
+        let swipeTimerInterval = null, swipeTimeRemaining = 60;
 
-        let randomState;
-        const seedRandom = (s) => randomState = s;
-        const seededRandom = () => {
-            randomState |= 0; randomState = randomState + 0x6D2B79F5 | 0;
-            let t = Math.imul(randomState ^ randomState >>> 15, 1 | randomState);
-            t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-            return ((t ^ t >>> 14) >>> 0) / 4294967296;
-        };
-
-        const DICTIONARY = new Set();
-        const loadDictionary = async () => {
+        const DICTIONARY = new Set(CORE_WORDS);
+        async function loadDictionary() {
             try {
-                const response = await fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_dictionary.json');
-                const data = await response.json();
-                Object.keys(data).forEach(word => { if (word.length >= 3 && word.length <= 10) DICTIONARY.add(word.toUpperCase()); });
-            } catch (e) { ["THE","AND","YOU","ARE","FOR","GET","WAS","HAD","WIN","POP","GRID","BOLD","PLAY"].forEach(w => DICTIONARY.add(w)); }
-        };
+                const r = await fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_dictionary.json');
+                const d = await r.json();
+                Object.keys(d).forEach(w => { if (w.length >= 3 && w.length <= 10) DICTIONARY.add(w.toUpperCase()); });
+            } catch (e) { console.warn("Dictionary fallback."); }
+        }
 
-        const generateLetterSet = () => {
-            const vWeights = { 'A': 9, 'E': 12, 'I': 9, 'O': 8, 'U': 4 };
-            const cWeights = { 
-                'R': 9, 'S': 9, 'T': 9, 'L': 8, 'N': 8, 'D': 7, 'G': 5, 'C': 5, 
-                'M': 5, 'P': 5, 'H': 5, 'B': 4, 'F': 4, 'Y': 4, 'W': 3, 'K': 3, 
-                'V': 2, 'X': 1, 'J': 1, 'Z': 1, 'Q': 1 
-            };
+        async function animateValue(id, start, end, duration) {
+            const el = document.getElementById(id); if (!el) return;
+            el.classList.add('tally-animating'); const range = Math.abs(end - start);
+            return new Promise(resolve => {
+                let current = start; if (range === 0) { el.innerText = end; el.classList.remove('tally-animating'); resolve(); return; }
+                const timer = setInterval(() => {
+                    current += (end > start ? 1 : -1); el.innerText = current;
+                    if (current == end) { clearInterval(timer); el.classList.remove('tally-animating'); resolve(); }
+                }, Math.max(Math.floor(duration / (range || 1)), 20));
+            });
+        }
 
-            const vowelCount = seededRandom() > 0.5 ? 7 : 6;
-            let letters = [];
-            let counts = {};
+        function loadStats() {
+            const data = localStorage.getItem(STATS_KEY);
+            if (data) {
+                const p = JSON.parse(data);
+                highScore = p.highScore || 0; streak = p.streak || 0; lastPlayedDate = p.lastPlayedDate || null;
+                badgesEarned = p.badgesEarned || { century: 0, architect: 0, warp: 0, tactician: 0, pure: 0 };
+            }
+            document.getElementById('current-streak').innerText = streak;
+            document.getElementById('best-score').innerText = highScore;
+            renderBadges();
+        }
 
-            const pickLetter = (weightMap, currentCounts) => {
-                let pool = [];
-                for (let char in weightMap) {
-                    let weight = weightMap[char];
-                    let count = currentCounts[char] || 0;
-                    if (count >= 2) continue; 
-                    if (count === 1) weight = Math.max(1, Math.floor(weight * 0.3));
-                    for (let i = 0; i < weight; i++) pool.push(char);
-                }
+        function saveStats(total, isDaily) {
+            const today = new Date().toISOString().split('T')[0];
+            if (isDaily) {
+                if (lastPlayedDate !== today) { streak++; lastPlayedDate = today; }
+                if (total > highScore) highScore = total;
+            }
+            localStorage.setItem(STATS_KEY, JSON.stringify({ highScore, streak, lastPlayedDate, badgesEarned }));
+        }
+
+        function generateLetterSet() {
+            const seed = isPracticeMode ? Math.floor(Math.random() * 1000000) : (new Date().getUTCFullYear()*10000 + (new Date().getUTCMonth()+1)*100 + new Date().getUTCDate());
+            seedRandom(seed);
+            const vW = { 'A': 9, 'E': 12, 'I': 9, 'O': 8, 'U': 4 };
+            const cW = { 'R': 9, 'S': 9, 'T': 9, 'L': 8, 'N': 8, 'D': 7, 'G': 5, 'C': 5, 'M': 5, 'P': 5, 'H': 5, 'B': 4, 'F': 4, 'Y': 4, 'W': 3, 'K': 3, 'V': 2, 'X': 1, 'J': 1, 'Z': 1, 'Q': 1 };
+            let letters = []; let counts = {};
+            const pick = (w, c) => {
+                let pool = []; for (let char in w) { let wt = w[char]; if ((c[char] || 0) >= 2) continue; for (let i = 0; i < wt; i++) pool.push(char); }
                 return pool[Math.floor(seededRandom() * pool.length)];
             };
-
-            letters.push('E');
-            counts['E'] = 1;
-
-            while (letters.length < vowelCount) {
-                let char = pickLetter(vWeights, counts);
-                letters.push(char);
-                counts[char] = (counts[char] || 0) + 1;
-            }
-
-            while (letters.length < 16) {
-                let char = pickLetter(cWeights, counts);
-                letters.push(char);
-                counts[char] = (counts[char] || 0) + 1;
-            }
-
-            if (counts['Q'] > 0 && !counts['U']) {
-                for(let i=0; i<letters.length; i++) {
-                    if (vWeights[letters[i]] && letters[i] !== 'E') {
-                        let old = letters[i];
-                        counts[old]--;
-                        letters[i] = 'U';
-                        counts['U'] = 1;
-                        break;
-                    }
-                }
-            }
-
-            for (let i = letters.length - 1; i > 0; i--) {
-                const j = Math.floor(seededRandom() * (i + 1));
-                [letters[i], letters[j]] = [letters[j], letters[i]];
-            }
-
-            const qIdx = letters.indexOf('Q');
-            if (qIdx !== -1) {
-                const uIdx = letters.indexOf('U');
-                if (uIdx !== -1) {
-                    letters.splice(uIdx, 1);
-                    const newQIdx = letters.indexOf('Q');
-                    if (newQIdx === 15) {
-                        letters.splice(15, 1);
-                        letters.splice(14, 0, 'Q', 'U');
-                    } else {
-                        letters.splice(newQIdx + 1, 0, 'U');
-                    }
-                }
-            }
-
+            letters.push('E'); while (letters.length < 7) { let ch = pick(vW, counts); letters.push(ch); counts[ch] = (counts[ch] || 0) + 1; }
+            while (letters.length < 16) { let ch = pick(cW, counts); letters.push(ch); counts[ch] = (counts[ch] || 0) + 1; }
+            for (let i = letters.length - 1; i > 0; i--) { const j = Math.floor(seededRandom() * (i + 1)); [letters[i], letters[j]] = [letters[j], letters[i]]; }
             return letters;
-        };
+        }
 
-        const updateUI = () => {
+        function updateUI() {
             const total = Math.max(0, wordScore + placeBonusScore + lineBonusScore + gridBonusScore - penaltyPoints);
             document.getElementById('score-display').innerText = total;
-            
-            const doneBtn = document.getElementById('done-action-btn');
-            const topMsg = document.getElementById('top-msg');
-            const stepNum = document.getElementById('step-number');
-            const queueBox = document.getElementById('queue-box');
-            const swapBox = document.getElementById('swap-counter');
-            const swapVal = document.getElementById('swap-penalty');
-            const s1 = document.getElementById('step-1'), s2 = document.getElementById('step-2'), s3 = document.getElementById('step-3');
-
-            topMsg.style.opacity = hudMessageVisible ? "1" : "0";
-            stepNum.style.opacity = hudMessageVisible ? "1" : "0";
+            const btn = document.getElementById('done-action-btn');
+            const progFill = document.getElementById('progress-bar-fill');
+            progFill.style.width = `${(placementIndex / 16) * 100}%`;
 
             if (currentPhase === PHASES.PLACE) {
-                topMsg.innerText = "PLACE ALL LETTERS";
-                stepNum.innerText = "1.";
-                s1.classList.add('bg-sky-500');
-                queueBox.classList.remove('hidden');
-                swapBox.classList.add('hidden');
-                if (placementIndex < 16) {
-                    doneBtn.innerText = "PLACE LETTERS";
-                    doneBtn.classList.add('opacity-30', 'cursor-not-allowed');
-                    doneBtn.disabled = true;
-                } else {
-                    doneBtn.innerText = "I'M DONE PLACING";
-                    doneBtn.classList.remove('opacity-30', 'cursor-not-allowed');
-                    doneBtn.disabled = false;
-                }
+                btn.classList.add('opacity-0', 'pointer-events-none');
+                document.getElementById('queue-box').classList.remove('hidden', 'opacity-0');
+                document.getElementById('swap-counter').classList.add('hidden');
             } else if (currentPhase === PHASES.REARRANGE) {
-                topMsg.innerText = "REARRANGE ANY LETTERS";
-                stepNum.innerText = "2.";
-                s2.classList.replace('bg-sky-500/20', 'bg-sky-500');
-                queueBox.classList.add('hidden');
-                swapBox.classList.remove('hidden');
-                swapVal.innerText = penaltyPoints > 0 ? `-${penaltyPoints}` : "0";
-                doneBtn.innerText = "I'M DONE REARRANGING";
-                doneBtn.classList.remove('opacity-30', 'cursor-not-allowed');
-                doneBtn.disabled = false;
+                btn.classList.remove('opacity-0', 'pointer-events-none');
+                btn.innerText = "SWAP LETTERS, CLICK WHEN DONE";
+                document.getElementById('queue-box').classList.add('hidden', 'opacity-0');
+                document.getElementById('swap-counter').classList.remove('hidden', 'opacity-0');
+                document.getElementById('swap-penalty').innerText = penaltyPoints > 0 ? `-${penaltyPoints}` : "0";
             } else if (currentPhase === PHASES.SWIPE) {
-                topMsg.innerText = "BEGIN SWIPING WORDS";
-                stepNum.innerText = "3.";
-                s3.classList.replace('bg-sky-500/20', 'bg-sky-500');
+                btn.innerText = "SWIPE WORDS - THE CLOCK IS TICKING!";
+                document.getElementById('swap-counter').classList.add('hidden');
+                document.getElementById('circular-timer-box').classList.remove('hidden');
                 document.getElementById('word-discovery').classList.remove('hidden');
-                queueBox.classList.add('hidden');
-                swapBox.classList.add('hidden');
-                if (foundWords.length > 0) {
-                    if (doneBtn.innerText === "I'M DONE REARRANGING" || doneBtn.innerText === "BEGIN SWIPING") {
-                       doneBtn.innerText = FUNNY_FINISHERS[Math.floor(Math.random() * FUNNY_FINISHERS.length)];
-                    }
-                } else {
-                    doneBtn.innerText = "BEGIN SWIPING";
-                }
             }
-        };
+        }
 
-        const createGrid = () => {
-            const container = document.getElementById('game-grid');
+        function createGrid() {
+            const container = document.getElementById('game-grid'); if (!container) return;
             container.innerHTML = '';
             for (let i = 0; i < 16; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'grid-cell bg-slate-800 rounded-2xl flex items-center justify-center text-3xl font-800 cursor-pointer select-none touch-none text-slate-100 shadow-inner';
-                cell.id = `cell-${i}`;
-                cell.dataset.index = i;
-                cell.innerHTML = '<span class="letter-container"></span>';
-                
-                cell.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    handleInteraction(i, 'start');
-                }, { passive: false });
-
-                cell.addEventListener('mousedown', (e) => {
-                    handleInteraction(i, 'start');
-                });
-
-                cell.addEventListener('mouseenter', () => {
-                    handleInteraction(i, 'move');
-                });
-
+                cell.id = `cell-${i}`; cell.dataset.index = i; cell.innerHTML = '<span class="letter-container"></span>';
+                cell.addEventListener('touchstart', (e) => { e.preventDefault(); handleInteraction(i, 'start'); }, { passive: false });
+                cell.addEventListener('mousedown', (e) => handleInteraction(i, 'start'));
+                cell.addEventListener('mouseenter', () => { if (isSwiping || currentPhase === PHASES.PLACE) handleInteraction(i, 'move'); });
                 container.appendChild(cell);
             }
-            
             window.addEventListener('mouseup', () => handleInteraction(null, 'end'));
-            window.addEventListener('touchend', () => handleInteraction(null, 'end'), { passive: false });
-            
+            window.addEventListener('touchend', () => handleInteraction(null, 'end'));
             container.addEventListener('touchmove', (e) => {
-                e.preventDefault(); 
-                const touch = e.touches[0];
+                e.preventDefault(); const touch = e.touches[0];
                 const el = document.elementFromPoint(touch.clientX, touch.clientY);
                 if (el?.classList.contains('grid-cell') || el?.parentElement?.classList.contains('grid-cell')) {
                     const cellEl = el.classList.contains('grid-cell') ? el : el.parentElement;
-                    const idx = parseInt(cellEl.dataset.index);
-                    handleInteraction(idx, 'move');
+                    handleInteraction(parseInt(cellEl.dataset.index), 'move');
                 }
             }, { passive: false });
-        };
+        }
 
-        const checkPlacementBonus = (idx) => {
-            const r = Math.floor(idx / 4), c = idx % 4;
-            const rowIndices = [r*4, r*4+1, r*4+2, r*4+3];
-            if (!rowIndices.some(i => grid[i] === null)) {
-                const rowStr = rowIndices.map(i => grid[i]).join("");
-                if (!placementBonusLines.has(`r${r}`) && DICTIONARY.has(rowStr)) {
-                    placementBonusLines.add(`r${r}`);
-                    rowIndices.forEach(i => placementDetectedWords.add(i));
-                    placeBonusScore += 10;
-                    showFloatingPoint("+10 BONUS");
-                    showFeedback("PLACEMENT BONUS!", "text-emerald-400");
-                }
-            }
-            const colIndices = [c, c+4, c+8, c+12];
-            if (!colIndices.some(i => grid[i] === null)) {
-                const colStr = colIndices.map(i => grid[i]).join("");
-                if (!placementBonusLines.has(`c${c}`) && DICTIONARY.has(colStr)) {
-                    placementBonusLines.add(`c${c}`);
-                    colIndices.forEach(i => placementDetectedWords.add(i));
-                    placeBonusScore += 10;
-                    showFloatingPoint("+10 BONUS");
-                    showFeedback("PLACEMENT BONUS!", "text-emerald-400");
-                }
-            }
-            updateUI();
-        };
-
-        const renderGrid = () => {
-            const next = lettersToPlace[placementIndex];
-            grid.forEach((char, i) => {
-                const cell = document.getElementById(`cell-${i}`);
-                const letterEl = cell.querySelector('.letter-container');
-                cell.classList.remove('bg-sky-500', 'text-slate-900', 'swiping-active', 'border-sky-400', 'cell-preview');
-                if (char) { letterEl.innerText = char; }
-                else if (currentPhase === PHASES.PLACE && hoveredCellIdx === i && next) {
-                    letterEl.innerText = next; cell.classList.add('cell-preview');
-                } else { letterEl.innerText = ''; }
-                if (currentPhase === PHASES.SWIPE && currentSwipePath.includes(i)) cell.classList.add('swiping-active');
-                if (currentPhase === PHASES.REARRANGE && swapStartIdx === i) cell.classList.add('bg-sky-500', 'text-slate-900', 'border-sky-400');
-            });
-        };
-
-        const handleInteraction = (idx, type) => {
+        function handleInteraction(idx, type) {
             if (currentPhase === PHASES.PLACE) {
                 if (type === 'start' && idx !== null && !grid[idx]) {
-                    grid[idx] = lettersToPlace[placementIndex++];
-                    checkPlacementBonus(idx);
-                    if (placementIndex === 16) currentPhase = PHASES.REARRANGE;
+                    grid[idx] = lettersToPlace[placementIndex++]; checkPlacementBonus(idx);
+                    if (placementIndex === 16) { 
+                        setTimeout(() => { currentPhase = PHASES.REARRANGE; updateUI(); renderGrid(); }, 1500);
+                    }
                     hoveredCellIdx = null; renderGrid(); updateUI(); updateQueue();
-                } else if (type === 'move') { if(hoveredCellIdx !== idx) { hoveredCellIdx = idx; renderGrid(); } }
+                } else if (type === 'move' && hoveredCellIdx !== idx) { hoveredCellIdx = idx; renderGrid(); }
                 else if (type === 'end') { hoveredCellIdx = null; renderGrid(); }
             } else if (currentPhase === PHASES.REARRANGE && type === 'start' && idx !== null) {
                 if (swapStartIdx === null) swapStartIdx = idx;
                 else if (swapStartIdx === idx) swapStartIdx = null;
                 else {
-                    const temp = grid[idx];
-                    grid[idx] = grid[swapStartIdx];
-                    grid[swapStartIdx] = temp;
-                    penaltyPoints += 2; swapStartIdx = null;
-                    showFloatingPoint("-2");
-                    renderGrid(); updateUI();
+                    const temp = grid[idx]; grid[idx] = grid[swapStartIdx]; grid[swapStartIdx] = temp;
+                    penaltyPoints += 2; swapStartIdx = null; showFloatingPoint("-2"); renderGrid(); updateUI();
                 }
                 renderGrid();
             } else if (currentPhase === PHASES.SWIPE) {
-                if (type === 'start' && idx !== null) { isSwiping = true; currentSwipePath = [idx]; swipeWord = grid[idx]; renderGrid(); updateUI(); }
+                if (type === 'start' && idx !== null) { isSwiping = true; currentSwipePath = [idx]; swipeWord = grid[idx]; renderGrid(); }
                 else if (type === 'move' && isSwiping && idx !== null) {
                     if (idx === currentSwipePath[currentSwipePath.length - 2]) { currentSwipePath.pop(); swipeWord = swipeWord.slice(0, -1); renderGrid(); return; }
                     if (!currentSwipePath.includes(idx)) {
@@ -566,169 +452,254 @@
                     }
                 } else if (type === 'end' && isSwiping) { validateWord(); isSwiping = false; currentSwipePath = []; swipeWord = ""; renderGrid(); }
             }
-        };
+        }
 
-        const validateWord = () => {
+        function validateWord() {
             if (swipeWord.length < 3 || foundWords.includes(swipeWord) || !DICTIONARY.has(swipeWord)) {
-                if (swipeWord.length >= 3) document.getElementById('game-grid-container').classList.add('shake');
-                setTimeout(() => document.getElementById('game-grid-container').classList.remove('shake'), 400);
+                if (swipeWord.length >= 3) {
+                    const gc = document.getElementById('game-grid-container'); gc.classList.add('shake');
+                    setTimeout(() => gc.classList.remove('shake'), 400);
+                }
                 return;
             }
-            foundWords.push(swipeWord);
-            currentSwipePath.forEach(i => wordUsedCells.add(i));
+            foundWords.push(swipeWord); currentSwipePath.forEach(i => wordUsedCells.add(i));
             let pts = swipeWord.length === 3 ? 1 : swipeWord.length === 4 ? 2 : swipeWord.length === 5 ? 3 : 5;
-            let finalPts = pts;
+            let lineBonus = 0;
             if (swipeWord.length === 4) {
                 const r = currentSwipePath.map(i => Math.floor(i/4)), c = currentSwipePath.map(i => i%4);
-                if (r.every(v => v === r[0]) || c.every(v => v === c[0])) { 
-                    lineBonusScore += 5; finalPts += 5;
-                    showFeedback("+5 LINE!", "text-amber-400"); 
-                }
+                if (r.every(v => v === r[0]) || c.every(v => v === c[0])) { lineBonus = 5; lineBonusScore += 5; }
             }
             wordScore += pts;
-            showFloatingPoint(`+${finalPts}`);
-            const div = document.createElement('div');
-            div.className = 'word-item shrink-0 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-[10px] font-800 text-sky-400 uppercase flex items-center gap-2';
-            div.innerHTML = `<span>${swipeWord}</span><span class="opacity-50 text-[8px]">${finalPts}</span>`;
+            showFloatingPoint(`+${pts + lineBonus}`);
+            const div = document.createElement('div'); div.className = 'word-item shrink-0 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-[10px] font-800 text-sky-400 uppercase flex items-center gap-2';
+            div.innerHTML = `<span>${swipeWord}</span><span class="opacity-50 text-[8px]">${pts + lineBonus}</span>`;
             document.getElementById('word-columns').prepend(div);
             document.getElementById('word-count-badge').innerText = foundWords.length;
             updateUI();
-        };
+        }
 
-        const showFloatingPoint = (text) => {
-            const container = document.getElementById('game-grid-container');
-            const floating = document.createElement('div');
-            floating.className = `floating-point`;
-            floating.innerText = text;
-            
-            // Middle of Row 1 (center of the grid horizontally)
-            floating.style.left = '50%';
-            // Slightly above Row 1 (near the top of the container)
-            floating.style.top = '10px';
-            
-            container.appendChild(floating);
-            setTimeout(() => floating.remove(), 1440);
-        };
-
-        const showFeedback = (text, color) => {
-            const el = document.getElementById('word-feedback');
-            el.innerText = text; 
-            // Lock background and container styles while changing text color class
-            el.className = `absolute -top-24 left-1/2 -translate-x-1/2 z-[60] bg-slate-950 px-6 py-2 rounded-2xl border border-slate-800 font-800 text-xl tracking-tighter text-center pointer-events-none transition-all duration-300 shadow-2xl whitespace-nowrap ${color}`;
-            el.style.opacity = "1"; setTimeout(() => el.style.opacity = "0", 1200);
-        };
-
-        const updateQueue = () => {
-            const next = lettersToPlace[placementIndex];
-            document.getElementById('next-letter').innerText = next || '✓';
-            const miniQueue = document.getElementById('mini-queue');
-            miniQueue.innerHTML = '';
-            for(let i = 3; i >= 1; i--) {
-                const char = lettersToPlace[placementIndex + i];
-                if (char) {
-                    const d = document.createElement('div');
-                    d.className = 'w-6 h-6 bg-slate-800 rounded border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-400';
-                    d.innerText = char; 
-                    miniQueue.appendChild(d);
+        function checkPlacementBonus(idx) {
+            const r = Math.floor(idx / 4), c = idx % 4;
+            const rIdxs = [r*4, r*4+1, r*4+2, r*4+3];
+            if (!rIdxs.some(i => grid[i] === null)) {
+                const rS = rIdxs.map(i => grid[i]).join("");
+                const rSRev = rS.split("").reverse().join("");
+                if (!placementBonusLines.has(`r${r}`) && (DICTIONARY.has(rS) || DICTIONARY.has(rSRev))) {
+                    placementBonusLines.add(`r${r}`); rIdxs.forEach(i => placementDetectedWords.add(i));
+                    placeBonusScore += 10; showFloatingPoint("+10 EARLY BIRD");
                 }
             }
-        };
+            const cIdxs = [c, c+4, c+8, c+12];
+            if (!cIdxs.some(i => grid[i] === null)) {
+                const cS = cIdxs.map(i => grid[i]).join("");
+                const cSRev = cS.split("").reverse().join("");
+                if (!placementBonusLines.has(`c${c}`) && (DICTIONARY.has(cS) || DICTIONARY.has(cSRev))) {
+                    placementBonusLines.add(`c${c}`); cIdxs.forEach(i => placementDetectedWords.add(i));
+                    placeBonusScore += 10; showFloatingPoint("+10 EARLY BIRD");
+                }
+            }
+            updateUI();
+        }
 
-        async function animateValue(id, start, end, duration) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            el.classList.add('tally-animating');
-            const range = Math.abs(end - start);
-            const step = Math.abs(Math.floor(duration / (Math.max(range, 1))));
-            return new Promise(resolve => {
-                let current = start;
-                if (range === 0) { el.innerText = end; el.classList.remove('tally-animating'); resolve(); return; }
-                const timer = setInterval(() => {
-                    current += (end > start ? 1 : -1);
-                    el.innerText = current;
-                    if (current == end) { clearInterval(timer); el.classList.remove('tally-animating'); resolve(); }
-                }, Math.max(step, 20));
+        function renderGrid() {
+            const next = lettersToPlace[placementIndex];
+            grid.forEach((char, i) => {
+                const cell = document.getElementById(`cell-${i}`); if (!cell) return;
+                const letterEl = cell.querySelector('.letter-container');
+                cell.classList.remove('bg-sky-500', 'text-slate-900', 'swiping-active', 'border-sky-400', 'cell-preview');
+                if (char) { letterEl.innerText = char; }
+                else if (currentPhase === PHASES.PLACE && hoveredCellIdx === i && next) { letterEl.innerText = next; cell.classList.add('cell-preview'); }
+                else { letterEl.innerText = ''; }
+                if (currentPhase === PHASES.SWIPE && currentSwipePath.includes(i)) cell.classList.add('swiping-active');
+                if (currentPhase === PHASES.REARRANGE && swapStartIdx === i) cell.classList.add('bg-sky-500', 'text-slate-900', 'border-sky-400');
             });
         }
 
-        const showResults = async () => {
-            currentPhase = PHASES.RESULT;
+        function startSwipeTimer() {
+            swipeTimeRemaining = 60; const progress = document.getElementById('timer-progress');
+            const text = document.getElementById('timer-text'); 
+            const circumference = 2 * Math.PI * 36;
+            if (progress) { 
+                progress.style.strokeDasharray = circumference; 
+                progress.style.strokeDashoffset = 0; 
+            }
+            swipeTimerInterval = setInterval(() => {
+                swipeTimeRemaining--; if (text) text.innerText = swipeTimeRemaining;
+                if (progress) progress.style.strokeDashoffset = circumference - (swipeTimeRemaining / 60) * circumference;
+                if (swipeTimeRemaining <= 0) { clearInterval(swipeTimerInterval); handleTimeUp(); }
+            }, 1000);
+        }
+
+        function handleTimeUp() {
+            const overlay = document.getElementById('time-up-overlay'); overlay.style.display = 'flex';
+            const btn = document.getElementById('time-up-btn'); btn.innerText = TIME_UP_PHRASES[Math.floor(Math.random() * TIME_UP_PHRASES.length)];
+            if (navigator.vibrate) navigator.vibrate(200);
+            setTimeout(() => { showResults(); overlay.style.display = 'none'; }, 2000);
+        }
+
+        async function showResults() {
+            currentPhase = PHASES.RESULT; 
             document.getElementById('result-modal').classList.replace('hidden', 'flex');
-            let rowsFull = 0, colsFull = 0;
+            
+            let rF = 0, cF = 0;
             for(let i=0; i<4; i++) {
-                const rowStr = grid.slice(i*4, i*4+4).join("");
-                if (DICTIONARY.has(rowStr)) rowsFull++;
-                const colIndices = [i, i+4, i+8, i+12];
-                const colStr = colIndices.map(idx => grid[idx]).join("");
-                if (DICTIONARY.has(colStr)) colsFull++;
+                const rS = grid.slice(i*4, i*4+4).join(""); if (DICTIONARY.has(rS)) rF++;
+                const cS = [i, i+4, i+8, i+12].map(idx => grid[idx]).join(""); if (DICTIONARY.has(cS)) cF++;
             }
-            if (rowsFull === 4 && colsFull === 4) gridBonusScore = 100;
-            else if (rowsFull === 4 || colsFull === 4) gridBonusScore = 20;
-            document.getElementById('grid-bonus-row').classList.toggle('hidden', gridBonusScore === 0);
-            document.getElementById('result-game-num-display').innerText = isPracticeMode ? "Practice Mode" : `Challenge #${getGameNumber()}`;
-            const sharePrev = document.getElementById('share-preview');
-            sharePrev.innerHTML = '';
-            for(let i=0; i<16; i++) {
-                const d = document.createElement('div');
-                d.className = `w-full h-full bg-slate-800 rounded border border-slate-700 flex items-center justify-center text-[8px] font-800 ${wordUsedCells.has(i) ? 'bg-sky-500 text-slate-900 border-sky-400' : ''}`;
-                d.innerText = grid[i].toUpperCase(); sharePrev.appendChild(d);
-            }
-            await animateValue('stat-word-count', 0, foundWords.length, 500);
-            await animateValue('stat-place-bonus', 0, placeBonusScore, 500);
-            await animateValue('stat-line-bonus', 0, lineBonusScore, 500);
-            await animateValue('stat-deduction', 0, -penaltyPoints, 400);
-            if (gridBonusScore > 0) await animateValue('stat-grid-bonus', 0, gridBonusScore, 400);
+            const isFull = (rF === 4 && cF === 4);
+            if (isFull) gridBonusScore = 100; else if (rF === 4 || cF === 4) gridBonusScore = 20;
             const total = Math.max(0, wordScore + placeBonusScore + lineBonusScore + gridBonusScore - penaltyPoints);
+            
+            const prevBest = JSON.parse(localStorage.getItem(STATS_KEY))?.highScore || 0;
+            saveStats(total, !isPracticeMode);
+            document.getElementById('current-streak').innerText = streak; document.getElementById('best-score').innerText = highScore;
+            
+            const banner = document.getElementById('new-record-badge');
+            if (total > prevBest && !isPracticeMode) {
+                banner.innerText = "NEW RECORD!";
+                banner.classList.remove('hidden');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                banner.classList.add('hidden');
+            }
+            
+            // Score tally FIRST
             await animateValue('final-score', 0, total, 1000);
-        };
+            
+            // Wait 0.5s for premium feel
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Trigger badge logic
+            if (!isPracticeMode) {
+                if (total >= 100) badgesEarned.century++;
+                if (isFull) badgesEarned.architect++;
+                if (foundWords.length >= 30) badgesEarned.warp++;
+                if (rF === 4 || cF === 4) badgesEarned.tactician++;
+                if (penaltyPoints === 0) badgesEarned.pure++;
+                localStorage.setItem(STATS_KEY, JSON.stringify({ highScore, streak, lastPlayedDate, badgesEarned }));
+            }
+            renderBadges();
+        }
 
         const copyToClipboard = () => {
             const total = Math.max(0, wordScore + placeBonusScore + lineBonusScore + gridBonusScore - penaltyPoints);
             let gridVisual = "";
             for(let i=0; i<16; i++) {
-                if (placementDetectedWords.has(i)) gridVisual += "🟩";
-                else if (wordUsedCells.has(i)) gridVisual += "🟦";
-                else gridVisual += "⬛";
-                if ((i + 1) % 4 === 0) gridVisual += "\n";
-                else gridVisual += " ";
+                if (placementDetectedWords.has(i)) gridVisual += "🟩"; else if (wordUsedCells.has(i)) gridVisual += "🟦"; else gridVisual += "⬛";
+                if ((i + 1) % 4 === 0) gridVisual += "\n"; else gridVisual += " ";
             }
-            const text = `gridee #${getGameNumber()}\nScore: ${total} | Swaps: -${penaltyPoints}\n\n${gridVisual}\nPlay at: https://planomy.github.io/gridee`;
-            const el = document.createElement('textarea');
-            el.value = text; document.body.appendChild(el); el.select();
+            const bKeys = ['architect', 'century', 'warp', 'tactician', 'pure'];
+            const bM = { architect:'🏆', century:'💯', warp:'🚀', tactician:'4️⃣', pure:'🚫' };
+            let bS = ""; bKeys.forEach(k => { if(badgesEarned[k] > 0) { bS += bM[k]; if (badgesEarned[k] > 1) bS += `^${badgesEarned[k]}`; } });
+            
+            const cS = [customShoutText, activeShout].filter(Boolean).join(" ");
+            const sH = cS ? `${cS}\n\n` : "";
+            const text = `${sH}gridee #${getGameNumber()}\nScore: ${total} | Streak: ${streak}🔥\n${bS ? 'Badges: ' + bS + '\n' : ''}${gridVisual}\nPlay: https://planomy.github.io/gridee`;
+            
+            const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select();
             document.execCommand('copy'); document.body.removeChild(el);
-            const toast = document.getElementById('toast');
-            toast.style.opacity = '1'; setTimeout(() => toast.style.opacity = '0', 2000);
+            const t = document.getElementById('toast'); t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 2000);
         };
+
+        function showBadgeInfo(key) {
+            const info = BADGE_DESCRIPTIONS[key]; if (!info) return;
+            document.getElementById('info-badge-icon').innerText = info.icon;
+            document.getElementById('info-badge-title').innerText = info.title;
+            document.getElementById('info-badge-desc').innerText = info.desc;
+            document.getElementById('badge-info-modal').classList.remove('hidden');
+        }
+        function closeBadgeInfo() { document.getElementById('badge-info-modal').classList.add('hidden'); }
+
+        function renderBadges() {
+            const hudBar = document.getElementById('badge-bar-hud'); if (!hudBar) return;
+            hudBar.innerHTML = '';
+            const bData = [ { key:'architect', icon:'🏆' }, { key:'century', icon:'💯' }, { key:'warp', icon:'🚀' }, { key:'tactician', icon:'4️⃣' }, { key:'pure', icon:'🚫' } ];
+            bData.forEach(b => {
+                const count = badgesEarned[b.key];
+                if (count > 0) {
+                    const wrap = document.createElement('div'); 
+                    wrap.className = 'w-3 h-3 bg-amber-400 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.6)] animate-pulse'; 
+                    hudBar.appendChild(wrap);
+                }
+                const slot = document.getElementById(`badge-${b.key}`); if (!slot) return;
+                const counter = slot.querySelector('.badge-counter');
+                if (count > 0) { 
+                    slot.classList.replace('locked', 'unlocked'); 
+                    counter.classList.remove('hidden'); 
+                    counter.innerText = count; 
+                } else { 
+                    slot.classList.add('locked'); 
+                    counter.classList.add('hidden'); 
+                }
+            });
+        }
+
+        function updateShout(btn, text) {
+            document.querySelectorAll('.shout-chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active'); activeShout = text;
+        }
+        function customShout(val) { customShoutText = val.trim(); }
 
         const startNewGame = (mode) => {
-            isPracticeMode = mode === 'practice';
-            grid = Array(16).fill(null); placementIndex = 0; penaltyPoints = 0; wordScore = 0; placeBonusScore = 0; lineBonusScore = 0; gridBonusScore = 0; foundWords = []; wordUsedCells.clear(); placementDetectedWords.clear(); placementBonusLines.clear();
+            if (swipeTimerInterval) clearInterval(swipeTimerInterval);
+            isPracticeMode = mode === 'practice'; grid = Array(16).fill(null); placementIndex = 0; penaltyPoints = 0; wordScore = 0; placeBonusScore = 0; lineBonusScore = 0; gridBonusScore = 0; foundWords = []; wordUsedCells.clear(); placementDetectedWords.clear(); placementBonusLines.clear();
             document.getElementById('splash-screen').style.display = 'none';
-            document.getElementById('result-modal').classList.replace('flex', 'hidden');
+            document.getElementById('result-modal').classList.add('hidden');
             document.getElementById('game-container').classList.remove('opacity-0');
             document.getElementById('word-discovery').classList.add('hidden');
-            document.getElementById('queue-box').classList.remove('hidden');
             document.getElementById('word-columns').innerHTML = '';
-            currentPhase = PHASES.PLACE;
-            seedRandom(isPracticeMode ? Math.floor(Math.random() * 1000000) : (new Date().getUTCFullYear()*10000 + (new Date().getUTCMonth()+1)*100 + new Date().getUTCDate()));
-            lettersToPlace = generateLetterSet();
-            createGrid(); renderGrid(); updateUI(); updateQueue();
+            document.getElementById('next-letter').classList.remove('hidden');
+            document.getElementById('queue-box').classList.remove('hidden');
+            document.getElementById('circular-timer-box').classList.add('hidden');
+            document.getElementById('swap-counter').classList.add('hidden');
+            document.getElementById('new-record-badge').classList.add('hidden');
+            currentPhase = PHASES.PLACE; lettersToPlace = generateLetterSet(); createGrid(); renderGrid(); updateUI(); updateQueue(); renderBadges();
         };
 
+        function showFloatingPoint(text) {
+            const c = document.getElementById('game-grid-container'); const f = document.createElement('div'); f.className = `floating-point`; f.innerText = text;
+            f.style.left = '50%'; f.style.top = '10px'; c.appendChild(f); setTimeout(() => f.remove(), 1440);
+        }
+        function updateQueue() {
+            const next = lettersToPlace[placementIndex]; 
+            const nL = document.getElementById('next-letter');
+            if (next) { nL.innerText = next; nL.classList.remove('hidden'); } else { nL.classList.add('hidden'); }
+            const mQ = document.getElementById('mini-queue'); mQ.innerHTML = '';
+            for(let i = 5; i >= 1; i--) {
+                const ch = lettersToPlace[placementIndex + i]; if (ch) { const d = document.createElement('div'); d.className = 'w-6 h-6 bg-slate-800 rounded border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-400'; d.innerText = ch; mQ.appendChild(d); }
+            }
+        }
+
         window.onload = () => {
+            loadStats();
             document.getElementById('start-daily-btn').addEventListener('click', () => startNewGame('daily'));
             document.getElementById('start-practice-btn').addEventListener('click', () => startNewGame('practice'));
-            document.getElementById('how-to-btn').addEventListener('click', () => document.getElementById('how-to-overlay').classList.replace('hidden', 'flex'));
-            document.getElementById('close-how-to').addEventListener('click', () => document.getElementById('how-to-overlay').classList.replace('flex', 'hidden'));
+            document.getElementById('how-to-btn').addEventListener('click', () => document.getElementById('how-to-overlay').classList.remove('hidden'));
+            document.getElementById('close-how-to').addEventListener('click', () => document.getElementById('how-to-overlay').classList.add('hidden'));
             document.getElementById('done-action-btn').addEventListener('click', () => {
-                if (currentPhase === PHASES.PLACE) { currentPhase = PHASES.REARRANGE; updateUI(); }
-                else if (currentPhase === PHASES.REARRANGE) { currentPhase = PHASES.SWIPE; hudMessageVisible = true; updateUI(); }
-                else if (currentPhase === PHASES.SWIPE) showResults();
+                if (currentPhase === PHASES.REARRANGE) { currentPhase = PHASES.SWIPE; updateUI(); startSwipeTimer(); }
                 renderGrid();
             });
             document.getElementById('share-btn').addEventListener('click', copyToClipboard);
             document.getElementById('play-practice-again-btn').addEventListener('click', () => startNewGame('practice'));
+            window.showBadgeInfo = showBadgeInfo; window.closeBadgeInfo = closeBadgeInfo; window.updateShout = updateShout; window.customShout = customShout;
             loadDictionary();
+        };
+
+        const BADGE_DESCRIPTIONS = {
+            architect: { title: "Holy Grail", icon: "🏆", desc: "Clear all 4 rows AND all 4 columns." },
+            century: { title: "Century Club", icon: "💯", desc: "Cross the 100 point milestone." },
+            warp: { title: "Warp Speed", icon: "🚀", desc: "Found 30 or more words in 1 minute." },
+            tactician: { title: "Line Master", icon: "4️⃣", desc: "Cleared 4 rows or columns." },
+            pure: { title: "Pure Play", icon: "🚫", desc: "Finished with 0 Swaps." }
+        };
+
+        let randomState;
+        function seedRandom(s) { randomState = s; }
+        function seededRandom() {
+            randomState |= 0; randomState = randomState + 0x6D2B79F5 | 0;
+            let t = Math.imul(randomState ^ randomState >>> 15, 1 | randomState);
+            t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+            return ((t ^ t >>> 14) >>> 0) / 4294967296;
         };
     </script>
 </body>
