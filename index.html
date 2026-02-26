@@ -21,13 +21,14 @@
             font-family: 'Lexend', sans-serif; touch-action: none; overscroll-behavior: none; user-select: none;
             color: #f8fafc; height: 100dvh; width: 100vw;
             display: flex; flex-direction: column; align-items: center;
+            /* Safe area for Samsung/Android nav bars */
+            padding-bottom: env(safe-area-inset-bottom);
+            box-sizing: border-box;
         }
         
-        /* Layout Strategy - Tightened for larger grid */
         header { padding-top: max(8px, env(safe-area-inset-top)); margin-bottom: 4px; z-index: 50; }
         #game-container { margin-top: 0; padding-top: 0px; }
 
-        /* Grid Styles */
         .grid-cell {
             aspect-ratio: 1 / 1; transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.1s ease;
             border: 2px solid rgba(30, 41, 59, 0.3); position: relative; display: flex; align-items: center; justify-content: center;
@@ -38,7 +39,24 @@
             background-color: #38bdf8 !important; color: #020617 !important; transform: scale(0.95);
             box-shadow: var(--sky-glow); z-index: 10; border-color: #7dd3fc !important;
         }
+
+        /* Placement Success Emerald Glow */
+        .placement-success {
+            background-color: rgba(16, 185, 129, 0.35) !important;
+            border-color: rgba(52, 211, 153, 0.7) !important;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+            color: #ecfdf5 !important;
+            transform: scale(1.02);
+        }
         
+        /* Initial Entrance Pop for Purple Buttons */
+        @keyframes reveal-pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.08); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .btn-reveal { animation: reveal-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
         .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake {
             10%, 90% { transform: translate3d(-1px, 0, 0); }
@@ -55,11 +73,9 @@
         @keyframes driftUp { 0% { transform: translate(-50%, 0); opacity: 1; } 100% { transform: translate(-50%, -100px); opacity: 0; } }
 
         .tally-animating { color: #fbbf24 !important; transform: scale(1.1); transition: transform 0.1s ease; }
-        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Increased Grid Size by 20% (40dvh -> 48dvh) */
         #game-grid { max-height: 48dvh; aspect-ratio: 1 / 1; width: auto; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 4px; }
 
         .shout-chip { flex: 0 0 auto; padding: 8px 16px; border-radius: 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.85rem; transition: all 0.2s ease; cursor: pointer; color: #f8fafc; white-space: nowrap; }
@@ -97,10 +113,7 @@
         .timer-progress { fill: none; stroke: #38bdf8; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 0.2s linear; }
 
         .results-overlay { background: #020617 !important; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-
         #time-up-overlay { position: absolute; inset: 0; background: rgba(2,6,23,0.92); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; border-radius: 1.5rem; }
-        
-        /* Lifted HUD Slightly higher (100px -> 80px) */
         #hud-bar { min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px; }
 
         .record-banner-active { 
@@ -121,7 +134,6 @@
             <div class="relative mb-6">
                 <div class="absolute -inset-10 bg-sky-500/20 blur-3xl rounded-full"></div>
                 <div class="flex items-center gap-4 relative">
-                    <!-- Logo: 4x4 grid with row 2 and col 2 highlighted -->
                     <svg width="48" height="48" viewBox="0 0 40 40" class="shrink-0 text-white/10">
                         <rect x="0" y="0" width="8" height="8" fill="currentColor" rx="1" />
                         <rect x="10" y="0" width="8" height="8" fill="#38bdf8" rx="1" />
@@ -145,10 +157,11 @@
             </div>
             <p class="text-sky-500 text-[10px] mb-12 uppercase tracking-[0.4em] font-bold">The Daily Grid Challenge</p>
             <div class="w-full max-w-xs space-y-3 px-4">
-                <button id="start-daily-btn" class="w-full py-4 bg-sky-500 hover:bg-sky-400 rounded-2xl font-800 text-slate-950 text-lg uppercase shadow-xl transition-all">Play Daily</button>
-                <button id="start-practice-btn" class="w-full py-3.5 bg-slate-900 border-2 border-slate-800 text-slate-400 rounded-2xl font-800 text-xs uppercase tracking-widest transition-all">Practice Mode</button>
+                <button id="start-daily-btn" class="w-full py-4 bg-sky-500 hover:bg-sky-400 rounded-2xl font-800 text-slate-950 text-lg uppercase shadow-xl transition-all opacity-40 pointer-events-none">Loading words...</button>
+                <button id="start-practice-btn" class="w-full py-3.5 bg-slate-900 border-2 border-slate-800 text-slate-400 rounded-2xl font-800 text-xs uppercase tracking-widest transition-all opacity-40 pointer-events-none">Readying...</button>
                 <button id="how-to-btn" class="w-full py-3 bg-transparent text-slate-500 hover:text-sky-400 font-800 text-[9px] uppercase tracking-[0.3em] mt-2">How to Play</button>
             </div>
+            <div id="next-grid-timer" class="text-sky-500/50 text-[10px] font-bold mt-8 uppercase tracking-[0.2em]"></div>
         </div>
     </div>
 
@@ -159,15 +172,15 @@
             <div class="space-y-6 text-left mb-10 w-full text-xs px-2">
                 <div class="flex gap-4 items-start">
                     <span class="w-8 h-8 shrink-0 bg-sky-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">1</span>
-                    <p class="text-slate-300 leading-relaxed font-semibold">Place letters. Forming words during placement earns <span class="text-emerald-400 font-bold">+10 Early Bird bonus!</span></p>
+                    <p class="text-slate-300 leading-relaxed font-semibold">Place ALL letters. Forming 4-LETTER words in rows or columns during placement earns <span class="text-emerald-400 font-bold">+10 Early Bird bonus!</span></p>
                 </div>
                 <div class="flex gap-4 items-start">
                     <span class="w-8 h-8 shrink-0 bg-amber-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">2</span>
-                    <p class="text-slate-300 leading-relaxed font-semibold">Swap strategically. Each swap costs <span class="text-rose-400 font-bold">2 points</span>.</p>
+                    <p class="text-slate-300 leading-relaxed font-semibold">Swap any letters strategically. Each swap costs <span class="text-rose-400 font-bold">2 points</span>.</p>
                 </div>
                 <div class="flex gap-4 items-start">
                     <span class="w-8 h-8 shrink-0 bg-emerald-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">3</span>
-                    <p class="text-slate-300 leading-relaxed font-semibold">Swipe words in <span class="text-sky-400 font-bold">60 seconds</span>. Full grid clear scores <span class="text-sky-400 font-bold">+100!</span></p>
+                    <p class="text-slate-300 leading-relaxed font-semibold">Swipe words in <span class="text-sky-400 font-bold">60 seconds</span>. Full grid - 4 row and column words scores <span class="text-sky-400 font-bold">+100 - the Holy Grail!</span></p>
                 </div>
             </div>
             <button id="close-how-to" class="px-12 py-4 bg-sky-500 text-slate-950 rounded-2xl font-800 uppercase tracking-widest text-xs active:scale-95 transition-all">Got it</button>
@@ -222,7 +235,6 @@
             </div>
         </div>
 
-        <!-- Slightly shorter Action Bar (py-5 -> py-4) -->
         <div class="w-full shrink-0 mb-1 mt-2">
             <button id="done-action-btn" style="background: var(--pink-purple);" class="w-full py-4 text-white rounded-2xl font-800 uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all opacity-0 pointer-events-none">
                 SWAP LETTERS, CLICK WHEN DONE
@@ -238,11 +250,10 @@
         </div>
     </main>
 
-    <!-- Results Modal - FIXED ALIGNMENT & MOBILE FIT -->
+    <!-- Results Modal -->
     <div id="result-modal" class="fixed inset-0 hidden flex-col items-center p-4 z-[300] results-overlay">
         <div class="w-full max-w-sm flex flex-col items-center text-center pt-6 pb-8 px-4 relative">
             
-            <!-- Optimized Stats Row -->
             <div class="flex gap-6 mb-4 items-center justify-center w-full">
                 <div class="flex flex-col items-center">
                     <span id="current-streak" class="text-5xl font-800 text-white leading-none">0</span>
@@ -255,7 +266,6 @@
                 </div>
             </div>
 
-            <!-- Trophy Room -->
             <div class="relative w-full mb-6">
                 <div id="trophy-room" class="flex gap-3 bg-slate-900/40 p-4 px-5 rounded-2xl border border-white/5 items-end h-16 justify-center">
                     <div id="badge-architect" class="badge-slot locked" onclick="showBadgeInfo('architect')"><div class="badge-shield"></div><span class="badge-icon-overlay">🏆</span><span class="badge-counter hidden">0</span></div>
@@ -267,13 +277,11 @@
                 <div id="new-record-badge" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-orange-500 text-slate-950 px-8 py-2 rounded-full font-800 text-sm shadow-2xl z-50 whitespace-nowrap scale-115 record-banner-active">NEW RECORD!</div>
             </div>
             
-            <!-- Final Score Area -->
             <div class="flex flex-col items-center mb-4">
                 <div id="final-score" class="text-8xl font-800 tracking-tighter text-white leading-none">0</div>
                 <span class="text-slate-500 uppercase tracking-[0.4em] text-[10px] font-800 mt-2">Total Score</span>
             </div>
             
-            <!-- Messaging Section -->
             <div class="w-full mb-6 text-left">
                 <div id="shout-chips" class="flex gap-2 overflow-x-auto pb-2 no-scrollbar mb-3">
                     <button class="shout-chip active" onclick="updateShout(this, '')">None</button>
@@ -286,7 +294,6 @@
                 <input type="text" id="shout-input" class="custom-shout-input text-xs" placeholder="Type a custom message..." maxlength="40" oninput="customShout(this.value)">
             </div>
 
-            <!-- Action Buttons -->
             <button id="share-btn" style="background: var(--pink-purple);" class="w-full py-5 rounded-3xl font-800 text-white uppercase tracking-tighter text-xl mb-4 shadow-lg active:scale-95 transition-all">SHARE RESULTS</button>
             <button id="play-practice-again-btn" class="text-slate-600 text-[10px] font-800 uppercase underline tracking-widest">New Practice Game</button>
         </div>
@@ -296,14 +303,13 @@
 
     <script>
         // --- Utilities ---
-        const getGameNumber = () => {
+        function getGameNumber() {
             const epoch = new Date('2025-02-20').getTime();
             return Math.floor((new Date().getTime() - epoch) / (1000 * 60 * 60 * 24)) + 1;
-        };
+        }
 
         const STATS_KEY = "gridee_device_stats_v3";
         const TIME_UP_PHRASES = ["That's it amigo", "Whoah stop!", "That'll do", "Muchos gracias", "Stop, in the name of love"];
-        const CORE_WORDS = ["MAKE", "BAND", "WORD", "PLAY", "GOLD", "GRID", "COOL", "LUCK", "BOLD", "PURE", "FAST", "TIME", "WINS", "GOOD", "DONE", "ROAD", "BIRD", "EARL", "BLUE", "FIRE"];
         
         let highScore = 0, streak = 0, lastPlayedDate = null;
         let badgesEarned = { century: 0, architect: 0, warp: 0, tactician: 0, pure: 0 };
@@ -316,24 +322,57 @@
         let activeShout = "", customShoutText = "";
         let swipeTimerInterval = null, swipeTimeRemaining = 60;
 
-        const DICTIONARY = new Set(CORE_WORDS);
+        const DICTIONARY = new Set();
+        
         async function loadDictionary() {
             try {
-                const r = await fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_dictionary.json');
-                const d = await r.json();
-                Object.keys(d).forEach(w => { if (w.length >= 3 && w.length <= 10) DICTIONARY.add(w.toUpperCase()); });
-            } catch (e) { console.warn("Dictionary fallback."); }
+                // FIXED: Use the 20k word list URL which is extremely reliable and common
+                const r = await fetch('https://raw.githubusercontent.com/first20hours/google-10000-english/master/20k.txt');
+                const text = await r.text();
+                const words = text.split('\n');
+                DICTIONARY.clear();
+                words.forEach(w => { 
+                    const word = w.trim().toUpperCase();
+                    if (word.length >= 3 && word.length <= 8) DICTIONARY.add(word); 
+                });
+                
+                // GUARANTEE: These words will always work even if the internet fails or the list is missing them.
+                ["BUSH", "MASH", "GASH", "MAUL", "BEAN", "SEEN", "SEAM", "GLOW", "GRID", "SWIPE", "ZEST", "BOLD", "WINS", "MAKE", "WORD", "TIME"].forEach(w => DICTIONARY.add(w));
+                
+                console.log(`✅ Dictionary Ready: ${DICTIONARY.size} words.`);
+                enableStartButtons();
+            } catch (e) { 
+                console.warn("Dictionary load failed. Using basics."); 
+                ["BUSH", "BEAN", "SEEN", "SEAM", "MAKE", "BAND", "WORD", "PLAY", "GOLD", "GRID", "COOL", "LUCK", "BOLD", "PURE", "FAST", "TIME", "WINS", "GOOD", "DONE", "ROAD", "BIRD", "EARL", "BLUE", "FIRE"].forEach(w => DICTIONARY.add(w));
+                enableStartButtons();
+            }
+        }
+
+        function enableStartButtons() {
+            const dailyBtn = document.getElementById('start-daily-btn');
+            const practiceBtn = document.getElementById('start-practice-btn');
+            const today = new Date().toISOString().split('T')[0];
+            
+            if (lastPlayedDate !== today) {
+                dailyBtn.innerText = "Play Daily";
+                dailyBtn.classList.remove('opacity-40', 'pointer-events-none');
+            } else {
+                dailyBtn.innerText = "Daily Done!";
+            }
+            practiceBtn.innerText = "Practice Mode";
+            practiceBtn.classList.remove('opacity-40', 'pointer-events-none');
         }
 
         async function animateValue(id, start, end, duration) {
             const el = document.getElementById(id); if (!el) return;
-            el.classList.add('tally-animating'); const range = Math.abs(end - start);
+            el.classList.add('tally-animating');
             return new Promise(resolve => {
-                let current = start; if (range === 0) { el.innerText = end; el.classList.remove('tally-animating'); resolve(); return; }
+                let current = start; 
+                if (Math.abs(end - start) === 0) { el.innerText = end; el.classList.remove('tally-animating'); resolve(); return; }
                 const timer = setInterval(() => {
                     current += (end > start ? 1 : -1); el.innerText = current;
                     if (current == end) { clearInterval(timer); el.classList.remove('tally-animating'); resolve(); }
-                }, Math.max(Math.floor(duration / (range || 1)), 20));
+                }, Math.max(Math.floor(duration / (Math.abs(end - start) || 1)), 20));
             });
         }
 
@@ -359,7 +398,7 @@
         }
 
         function generateLetterSet() {
-            const seed = isPracticeMode ? Math.floor(Math.random() * 1000000) : (new Date().getUTCFullYear()*10000 + (new Date().getUTCMonth()+1)*100 + new Date().getUTCDate());
+            const seed = isPracticeMode ? Math.floor(Math.random() * 1000000) : Math.floor(Date.now() / 86400000); 
             seedRandom(seed);
             const vW = { 'A': 9, 'E': 12, 'I': 9, 'O': 8, 'U': 4 };
             const cW = { 'R': 9, 'S': 9, 'T': 9, 'L': 8, 'N': 8, 'D': 7, 'G': 5, 'C': 5, 'M': 5, 'P': 5, 'H': 5, 'B': 4, 'F': 4, 'Y': 4, 'W': 3, 'K': 3, 'V': 2, 'X': 1, 'J': 1, 'Z': 1, 'Q': 1 };
@@ -383,9 +422,12 @@
 
             if (currentPhase === PHASES.PLACE) {
                 btn.classList.add('opacity-0', 'pointer-events-none');
+                btn.classList.remove('btn-reveal');
                 document.getElementById('queue-box').classList.remove('hidden', 'opacity-0');
-                document.getElementById('swap-counter').classList.add('hidden');
             } else if (currentPhase === PHASES.REARRANGE) {
+                if (btn.classList.contains('opacity-0')) {
+                    btn.classList.add('btn-reveal');
+                }
                 btn.classList.remove('opacity-0', 'pointer-events-none');
                 btn.innerText = "SWAP LETTERS, CLICK WHEN DONE";
                 document.getElementById('queue-box').classList.add('hidden', 'opacity-0');
@@ -426,9 +468,14 @@
         function handleInteraction(idx, type) {
             if (currentPhase === PHASES.PLACE) {
                 if (type === 'start' && idx !== null && !grid[idx]) {
-                    grid[idx] = lettersToPlace[placementIndex++]; checkPlacementBonus(idx);
+                    grid[idx] = lettersToPlace[placementIndex++]; 
+                    checkPlacementBonus(idx);
                     if (placementIndex === 16) { 
-                        setTimeout(() => { currentPhase = PHASES.REARRANGE; updateUI(); renderGrid(); }, 1500);
+                        setTimeout(() => { 
+                            currentPhase = PHASES.REARRANGE; 
+                            updateUI(); 
+                            renderGrid(); 
+                        }, 1500);
                     }
                     hoveredCellIdx = null; renderGrid(); updateUI(); updateQueue();
                 } else if (type === 'move' && hoveredCellIdx !== idx) { hoveredCellIdx = idx; renderGrid(); }
@@ -480,22 +527,30 @@
 
         function checkPlacementBonus(idx) {
             const r = Math.floor(idx / 4), c = idx % 4;
+            
+            // CHECK ROW
             const rIdxs = [r*4, r*4+1, r*4+2, r*4+3];
             if (!rIdxs.some(i => grid[i] === null)) {
                 const rS = rIdxs.map(i => grid[i]).join("");
                 const rSRev = rS.split("").reverse().join("");
                 if (!placementBonusLines.has(`r${r}`) && (DICTIONARY.has(rS) || DICTIONARY.has(rSRev))) {
-                    placementBonusLines.add(`r${r}`); rIdxs.forEach(i => placementDetectedWords.add(i));
-                    placeBonusScore += 10; showFloatingPoint("+10 EARLY BIRD");
+                    placementBonusLines.add(`r${r}`); 
+                    rIdxs.forEach(i => placementDetectedWords.add(i));
+                    placeBonusScore += 10; 
+                    showFloatingPoint("+10 EARLY BIRD");
                 }
             }
+            
+            // CHECK COL
             const cIdxs = [c, c+4, c+8, c+12];
             if (!cIdxs.some(i => grid[i] === null)) {
                 const cS = cIdxs.map(i => grid[i]).join("");
                 const cSRev = cS.split("").reverse().join("");
                 if (!placementBonusLines.has(`c${c}`) && (DICTIONARY.has(cS) || DICTIONARY.has(cSRev))) {
-                    placementBonusLines.add(`c${c}`); cIdxs.forEach(i => placementDetectedWords.add(i));
-                    placeBonusScore += 10; showFloatingPoint("+10 EARLY BIRD");
+                    placementBonusLines.add(`c${c}`); 
+                    cIdxs.forEach(i => placementDetectedWords.add(i));
+                    placeBonusScore += 10; 
+                    showFloatingPoint("+10 EARLY BIRD");
                 }
             }
             updateUI();
@@ -506,8 +561,11 @@
             grid.forEach((char, i) => {
                 const cell = document.getElementById(`cell-${i}`); if (!cell) return;
                 const letterEl = cell.querySelector('.letter-container');
-                cell.classList.remove('bg-sky-500', 'text-slate-900', 'swiping-active', 'border-sky-400', 'cell-preview');
-                if (char) { letterEl.innerText = char; }
+                cell.classList.remove('bg-sky-500', 'text-slate-900', 'swiping-active', 'border-sky-400', 'cell-preview', 'placement-success');
+                if (char) { 
+                    letterEl.innerText = char; 
+                    if (currentPhase === PHASES.PLACE && placementDetectedWords.has(i)) cell.classList.add('placement-success');
+                }
                 else if (currentPhase === PHASES.PLACE && hoveredCellIdx === i && next) { letterEl.innerText = next; cell.classList.add('cell-preview'); }
                 else { letterEl.innerText = ''; }
                 if (currentPhase === PHASES.SWIPE && currentSwipePath.includes(i)) cell.classList.add('swiping-active');
@@ -519,10 +577,7 @@
             swipeTimeRemaining = 60; const progress = document.getElementById('timer-progress');
             const text = document.getElementById('timer-text'); 
             const circumference = 2 * Math.PI * 36;
-            if (progress) { 
-                progress.style.strokeDasharray = circumference; 
-                progress.style.strokeDashoffset = 0; 
-            }
+            if (progress) { progress.style.strokeDasharray = circumference; progress.style.strokeDashoffset = 0; }
             swipeTimerInterval = setInterval(() => {
                 swipeTimeRemaining--; if (text) text.innerText = swipeTimeRemaining;
                 if (progress) progress.style.strokeDashoffset = circumference - (swipeTimeRemaining / 60) * circumference;
@@ -533,7 +588,6 @@
         function handleTimeUp() {
             const overlay = document.getElementById('time-up-overlay'); overlay.style.display = 'flex';
             const btn = document.getElementById('time-up-btn'); btn.innerText = TIME_UP_PHRASES[Math.floor(Math.random() * TIME_UP_PHRASES.length)];
-            if (navigator.vibrate) navigator.vibrate(200);
             setTimeout(() => { showResults(); overlay.style.display = 'none'; }, 2000);
         }
 
@@ -546,13 +600,17 @@
                 const rS = grid.slice(i*4, i*4+4).join(""); if (DICTIONARY.has(rS)) rF++;
                 const cS = [i, i+4, i+8, i+12].map(idx => grid[idx]).join(""); if (DICTIONARY.has(cS)) cF++;
             }
-            const isFull = (rF === 4 && cF === 4);
-            if (isFull) gridBonusScore = 100; else if (rF === 4 || cF === 4) gridBonusScore = 20;
-            const total = Math.max(0, wordScore + placeBonusScore + lineBonusScore + gridBonusScore - penaltyPoints);
             
+            const isFull = (rF === 4 && cF === 4);
+            // Tactician bonus: +40, Holy Grail: +100
+            if (isFull) gridBonusScore = 100; else if (rF === 4 || cF === 4) gridBonusScore = 40;
+            
+            const total = Math.max(0, wordScore + placeBonusScore + lineBonusScore + gridBonusScore - penaltyPoints);
             const prevBest = JSON.parse(localStorage.getItem(STATS_KEY))?.highScore || 0;
             saveStats(total, !isPracticeMode);
-            document.getElementById('current-streak').innerText = streak; document.getElementById('best-score').innerText = highScore;
+            
+            document.getElementById('current-streak').innerText = streak; 
+            document.getElementById('best-score').innerText = highScore;
             
             const banner = document.getElementById('new-record-badge');
             if (total > prevBest && !isPracticeMode) {
@@ -562,13 +620,9 @@
                 banner.classList.add('hidden');
             }
             
-            // Score tally FIRST
             await animateValue('final-score', 0, total, 1000);
-            
-            // Wait 0.5s for premium feel
             await new Promise(resolve => setTimeout(resolve, 500));
             
-            // Trigger badge logic
             if (!isPracticeMode) {
                 if (total >= 100) badgesEarned.century++;
                 if (isFull) badgesEarned.architect++;
@@ -587,9 +641,8 @@
                 if (placementDetectedWords.has(i)) gridVisual += "🟩"; else if (wordUsedCells.has(i)) gridVisual += "🟦"; else gridVisual += "⬛";
                 if ((i + 1) % 4 === 0) gridVisual += "\n"; else gridVisual += " ";
             }
-            const bKeys = ['architect', 'century', 'warp', 'tactician', 'pure'];
             const bM = { architect:'🏆', century:'💯', warp:'🚀', tactician:'4️⃣', pure:'🚫' };
-            let bS = ""; bKeys.forEach(k => { if(badgesEarned[k] > 0) { bS += bM[k]; if (badgesEarned[k] > 1) bS += `^${badgesEarned[k]}`; } });
+            let bS = ""; Object.keys(badgesEarned).forEach(k => { if(badgesEarned[k] > 0) { bS += bM[k]; if (badgesEarned[k] > 1) bS += `^${badgesEarned[k]}`; } });
             
             const cS = [customShoutText, activeShout].filter(Boolean).join(" ");
             const sH = cS ? `${cS}\n\n` : "";
@@ -597,17 +650,26 @@
             
             const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select();
             document.execCommand('copy'); document.body.removeChild(el);
-            const t = document.getElementById('toast'); t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 2000);
+            const t = document.getElementById('toast'); 
+            t.innerText = "Copied!";
+            t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 2000);
+        };
+
+        const BADGE_DESCRIPTIONS = {
+            architect: { title: "Holy Grail", icon: "🏆", desc: "Clear all 4 rows AND all 4 columns." },
+            century: { title: "Century Club", icon: "💯", desc: "Cross the 100 point milestone." },
+            warp: { title: "Warp Speed", icon: "🚀", desc: "Found 30 or more words in 1 minute." },
+            tactician: { title: "Line Master", icon: "4️⃣", desc: "Cleared 4 rows or columns." },
+            pure: { title: "Pure Play", icon: "🚫", desc: "Finished with 0 Swaps." }
         };
 
         function showBadgeInfo(key) {
             const info = BADGE_DESCRIPTIONS[key]; if (!info) return;
-            document.getElementById('info-badge-icon').innerText = info.icon;
-            document.getElementById('info-badge-title').innerText = info.title;
-            document.getElementById('info-badge-desc').innerText = info.desc;
-            document.getElementById('badge-info-modal').classList.remove('hidden');
+            const t = document.getElementById('toast');
+            t.innerText = `${info.icon} ${info.title}: ${info.desc}`;
+            t.style.opacity = '1';
+            setTimeout(() => t.style.opacity = '0', 3000);
         }
-        function closeBadgeInfo() { document.getElementById('badge-info-modal').classList.add('hidden'); }
 
         function renderBadges() {
             const hudBar = document.getElementById('badge-bar-hud'); if (!hudBar) return;
@@ -616,20 +678,12 @@
             bData.forEach(b => {
                 const count = badgesEarned[b.key];
                 if (count > 0) {
-                    const wrap = document.createElement('div'); 
-                    wrap.className = 'w-3 h-3 bg-amber-400 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.6)] animate-pulse'; 
-                    hudBar.appendChild(wrap);
+                    const wrap = document.createElement('div'); wrap.className = 'w-3 h-3 bg-amber-400 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.6)] animate-pulse'; hudBar.appendChild(wrap);
                 }
                 const slot = document.getElementById(`badge-${b.key}`); if (!slot) return;
                 const counter = slot.querySelector('.badge-counter');
-                if (count > 0) { 
-                    slot.classList.replace('locked', 'unlocked'); 
-                    counter.classList.remove('hidden'); 
-                    counter.innerText = count; 
-                } else { 
-                    slot.classList.add('locked'); 
-                    counter.classList.add('hidden'); 
-                }
+                if (count > 0) { slot.classList.replace('locked', 'unlocked'); counter.classList.remove('hidden'); counter.innerText = count; } 
+                else { slot.classList.add('locked'); counter.classList.add('hidden'); }
             });
         }
 
@@ -660,8 +714,7 @@
             f.style.left = '50%'; f.style.top = '10px'; c.appendChild(f); setTimeout(() => f.remove(), 1440);
         }
         function updateQueue() {
-            const next = lettersToPlace[placementIndex]; 
-            const nL = document.getElementById('next-letter');
+            const next = lettersToPlace[placementIndex]; const nL = document.getElementById('next-letter');
             if (next) { nL.innerText = next; nL.classList.remove('hidden'); } else { nL.classList.add('hidden'); }
             const mQ = document.getElementById('mini-queue'); mQ.innerHTML = '';
             for(let i = 5; i >= 1; i--) {
@@ -669,8 +722,17 @@
             }
         }
 
+        function updateCountdown() {
+            const nextDay = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate() + 1));
+            const diff = nextDay - new Date();
+            const h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
+            const tEl = document.getElementById('next-grid-timer');
+            if (tEl) tEl.innerText = `Next Daily Grid in ${h}h ${m}m ${s}s`;
+            setTimeout(updateCountdown, 1000);
+        }
+
         window.onload = () => {
-            loadStats();
+            loadStats(); loadDictionary(); updateCountdown();
             document.getElementById('start-daily-btn').addEventListener('click', () => startNewGame('daily'));
             document.getElementById('start-practice-btn').addEventListener('click', () => startNewGame('practice'));
             document.getElementById('how-to-btn').addEventListener('click', () => document.getElementById('how-to-overlay').classList.remove('hidden'));
@@ -681,16 +743,7 @@
             });
             document.getElementById('share-btn').addEventListener('click', copyToClipboard);
             document.getElementById('play-practice-again-btn').addEventListener('click', () => startNewGame('practice'));
-            window.showBadgeInfo = showBadgeInfo; window.closeBadgeInfo = closeBadgeInfo; window.updateShout = updateShout; window.customShout = customShout;
-            loadDictionary();
-        };
-
-        const BADGE_DESCRIPTIONS = {
-            architect: { title: "Holy Grail", icon: "🏆", desc: "Clear all 4 rows AND all 4 columns." },
-            century: { title: "Century Club", icon: "💯", desc: "Cross the 100 point milestone." },
-            warp: { title: "Warp Speed", icon: "🚀", desc: "Found 30 or more words in 1 minute." },
-            tactician: { title: "Line Master", icon: "4️⃣", desc: "Cleared 4 rows or columns." },
-            pure: { title: "Pure Play", icon: "🚫", desc: "Finished with 0 Swaps." }
+            window.showBadgeInfo = showBadgeInfo; window.updateShout = updateShout; window.customShout = customShout;
         };
 
         let randomState;
