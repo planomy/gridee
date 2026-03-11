@@ -14,33 +14,46 @@
             --pink-purple: linear-gradient(135deg, #a21caf, #6b21a8);
         }
         html, body {
-            height: 100%; margin: 0; padding: 0; overflow: hidden;
+            height: 100%; height: 100vh; height: 100dvh; 
+            margin: 0; padding: 0; overflow: hidden;
             background-color: #020617;
         }
         body {
             font-family: 'Lexend', sans-serif; touch-action: none; overscroll-behavior: none; user-select: none;
-            color: #f8fafc; height: 100dvh; width: 100vw;
+            color: #f8fafc; width: 100vw;
             display: flex; flex-direction: column; align-items: center;
-            /* Safe area for Samsung/Android nav bars */
             padding-bottom: env(safe-area-inset-bottom);
             box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
         }
         
-        header { padding-top: max(8px, env(safe-area-inset-top)); margin-bottom: 4px; z-index: 50; }
-        #game-container { margin-top: 0; padding-top: 0px; }
+        header { padding-top: max(8px, env(safe-area-inset-top)); margin-bottom: 4px; z-index: 50; width: 100%; display: flex; justify-content: center; }
+        #game-container { margin-top: 0; padding-top: 0px; flex: 1; display: flex; flex-direction: column; }
 
         .grid-cell {
             aspect-ratio: 1 / 1; transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.1s ease;
             border: 2px solid rgba(30, 41, 59, 0.3); position: relative; display: flex; align-items: center; justify-content: center;
+            touch-action: manipulation;
         }
         .letter-container { pointer-events: none; z-index: 5; }
         .cell-preview { opacity: 0.4; color: #38bdf8; transform: scale(0.9); background-color: rgba(56, 189, 248, 0.1); }
+        
+        /* Pulse for selected items (Tray or Grid) */
+        .item-selected { 
+            border-color: #38bdf8 !important; 
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6); 
+            background-color: #38bdf8 !important; 
+            color: #020617 !important; 
+            transform: scale(1.1); 
+            animation: active-pulse 1.5s infinite ease-in-out; 
+            z-index: 10; 
+        }
+
         .swiping-active {
             background-color: #38bdf8 !important; color: #020617 !important; transform: scale(0.95);
             box-shadow: var(--sky-glow); z-index: 10; border-color: #7dd3fc !important;
         }
 
-        /* Placement Success Emerald Glow */
         .placement-success {
             background-color: rgba(16, 185, 129, 0.35) !important;
             border-color: rgba(52, 211, 153, 0.7) !important;
@@ -49,13 +62,7 @@
             transform: scale(1.02);
         }
         
-        /* Initial Entrance Pop for Purple Buttons */
-        @keyframes reveal-pop {
-            0% { transform: scale(0.5); opacity: 0; }
-            70% { transform: scale(1.08); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .btn-reveal { animation: reveal-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        @keyframes active-pulse { 0%, 100% { transform: scale(1.1); filter: brightness(1); } 50% { transform: scale(1.15); filter: brightness(1.2); } }
 
         .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake {
@@ -76,7 +83,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        #game-grid { max-height: 48dvh; aspect-ratio: 1 / 1; width: auto; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 4px; }
+        #game-grid { max-height: 48dvh; aspect-ratio: 1 / 1; width: 100%; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 4px; box-sizing: border-box; }
 
         .shout-chip { flex: 0 0 auto; padding: 8px 16px; border-radius: 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.85rem; transition: all 0.2s ease; cursor: pointer; color: #f8fafc; white-space: nowrap; }
         .shout-chip.active { background: #38bdf8; color: #020617; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
@@ -114,7 +121,9 @@
 
         .results-overlay { background: #020617 !important; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         #time-up-overlay { position: absolute; inset: 0; background: rgba(2,6,23,0.92); backdrop-filter: blur(8px); z-index: 100; display: none; align-items: center; justify-content: center; border-radius: 1.5rem; }
-        #hud-bar { min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px; }
+        #hud-bar { min-height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2px; width: 100%; }
+
+        .tray-letter-cell { cursor: pointer; touch-action: manipulation; transition: all 0.2s ease; }
 
         .record-banner-active { 
             animation: spotlight-reveal 2.0s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
@@ -167,20 +176,20 @@
 
     <!-- Instructions Overlay -->
     <div id="how-to-overlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-[210] hidden flex items-center justify-center p-6">
-        <div class="w-full max-w-sm flex flex-col items-center text-center">
+        <div class="w-full max-sm flex flex-col items-center text-center">
             <h2 class="text-4xl font-800 text-sky-400 tracking-tighter lowercase mb-10">Instructions</h2>
             <div class="space-y-6 text-left mb-10 w-full text-xs px-2">
                 <div class="flex gap-4 items-start">
                     <span class="w-8 h-8 shrink-0 bg-sky-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">1</span>
-                    <p class="text-slate-300 leading-relaxed font-semibold">Place ALL letters. Forming 4-LETTER words in rows or columns during placement earns <span class="text-emerald-400 font-bold">+10 Early Bird bonus!</span></p>
+                    <p class="text-slate-300 leading-relaxed font-semibold">Flexible Placement: Tap a letter from the tray to place it, or tap a placed letter to move it.</p>
                 </div>
                 <div class="flex gap-4 items-start">
-                    <span class="w-8 h-8 shrink-0 bg-amber-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">2</span>
-                    <p class="text-slate-300 leading-relaxed font-semibold">Swap any letters strategically. Each swap costs <span class="text-rose-400 font-bold">2 points</span>.</p>
+                    <span class="w-8 h-8 shrink-0 bg-emerald-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">2</span>
+                    <p class="text-slate-300 leading-relaxed font-semibold">Form words in rows/cols during placement for <span class="text-emerald-400 font-bold">+10 Early Bird!</span></p>
                 </div>
                 <div class="flex gap-4 items-start">
-                    <span class="w-8 h-8 shrink-0 bg-emerald-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">3</span>
-                    <p class="text-slate-300 leading-relaxed font-semibold">Swipe words in <span class="text-sky-400 font-bold">60 seconds</span>. Full grid - 4 row and column words scores <span class="text-sky-400 font-bold">+100 - the Holy Grail!</span></p>
+                    <span class="w-8 h-8 shrink-0 bg-sky-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">3</span>
+                    <p class="text-slate-300 leading-relaxed font-semibold">Ready to swipe? Click "I'M DONE" to start the 60-second timer and swipe words to score!</p>
                 </div>
             </div>
             <button id="close-how-to" class="px-12 py-4 bg-sky-500 text-slate-950 rounded-2xl font-800 uppercase tracking-widest text-xs active:scale-95 transition-all">Got it</button>
@@ -207,15 +216,13 @@
         </div>
 
         <div id="hud-bar">
-            <div id="right-hud-content" class="flex flex-col items-center gap-6 w-full">
-                <div id="queue-box" class="flex flex-row items-center justify-center gap-4 transition-opacity duration-300">
-                    <div class="flex gap-1.5" id="mini-queue"></div>
-                    <div id="next-letter" class="w-16 h-16 bg-sky-500 rounded-2xl flex items-center justify-center text-4xl font-800 text-slate-950 shadow-[0_0_30px_rgba(56,189,248,0.3)]">?</div>
-                </div>
-                
-                <div id="swap-counter" class="hidden flex flex-col items-center transition-opacity duration-300">
-                    <span id="swap-penalty" class="text-3xl font-800 text-rose-400 leading-none">0</span>
-                    <span class="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">Penalty</span>
+            <div id="right-hud-content" class="flex flex-col items-center gap-2 w-full">
+                <!-- TRAY UI -->
+                <div id="queue-box" class="w-full flex flex-col items-center transition-opacity duration-300">
+                    <div id="letter-tray" class="grid grid-cols-8 gap-1.5 mb-2">
+                        <!-- 16 letters injected here -->
+                    </div>
+                    <div id="tray-label" class="text-[8px] font-bold text-sky-500/50 uppercase tracking-[0.2em] mb-2">Pick a Letter</div>
                 </div>
 
                 <div id="circular-timer-box" class="hidden relative w-20 h-20 flex items-center justify-center">
@@ -228,7 +235,7 @@
             </div>
         </div>
 
-        <div id="game-grid-container" class="relative group shrink-1 min-h-0 mb-1 overflow-visible">
+        <div id="game-grid-container" class="relative group flex-1 min-h-0 mb-1 overflow-visible">
             <div id="game-grid"></div>
             <div id="time-up-overlay">
                 <button id="time-up-btn" class="bg-slate-950 border-2 border-sky-500/30 text-white font-800 px-10 py-5 rounded-3xl shadow-2xl scale-125 transition-transform uppercase tracking-tighter">TIME UP!</button>
@@ -237,7 +244,7 @@
 
         <div class="w-full shrink-0 mb-1 mt-2">
             <button id="done-action-btn" style="background: var(--pink-purple);" class="w-full py-4 text-white rounded-2xl font-800 uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all opacity-0 pointer-events-none">
-                SWAP LETTERS, CLICK WHEN DONE
+                I'M DONE
             </button>
         </div>
 
@@ -252,7 +259,7 @@
 
     <!-- Results Modal -->
     <div id="result-modal" class="fixed inset-0 hidden flex-col items-center p-4 z-[300] results-overlay">
-        <div class="w-full max-w-sm flex flex-col items-center text-center pt-6 pb-8 px-4 relative">
+        <div class="w-full max-sm flex flex-col items-center text-center pt-6 pb-8 px-4 relative">
             
             <div class="flex gap-6 mb-4 items-center justify-center w-full">
                 <div class="flex flex-col items-center">
@@ -313,11 +320,19 @@
         
         let highScore = 0, streak = 0, lastPlayedDate = null;
         let badgesEarned = { century: 0, architect: 0, warp: 0, tactician: 0, pure: 0 };
-        const PHASES = { PLACE: 0, REARRANGE: 1, SWIPE: 2, RESULT: 3 };
-        let currentPhase = PHASES.PLACE, grid = Array(16).fill(null), lettersToPlace = [], placementIndex = 0;
-        let penaltyPoints = 0, wordScore = 0, placeBonusScore = 0, lineBonusScore = 0, gridBonusScore = 0;
+        
+        const PHASES = { PLACE: 0, SWIPE: 1, RESULT: 2 };
+        
+        let currentPhase = PHASES.PLACE; 
+        let grid = Array(16).fill(null); 
+        let lettersToPlace = []; 
+        let usedTrayIndices = new Set();
+        let selectedTrayIdx = null;
+        let selectedGridIdx = null;
+
+        let wordScore = 0, placeBonusScore = 0, lineBonusScore = 0, gridBonusScore = 0;
         let foundWords = [], placementBonusLines = new Set(), placementDetectedWords = new Set();
-        let swapStartIdx = null, wordUsedCells = new Set(), isPracticeMode = false, isSwiping = false;
+        let wordUsedCells = new Set(), isPracticeMode = false, isSwiping = false;
         let currentSwipePath = [], swipeWord = "", hoveredCellIdx = null;
         let activeShout = "", customShoutText = "";
         let swipeTimerInterval = null, swipeTimeRemaining = 60;
@@ -326,7 +341,6 @@
         
         async function loadDictionary() {
             try {
-                // FIXED: Use the 20k word list URL which is extremely reliable and common
                 const r = await fetch('https://raw.githubusercontent.com/first20hours/google-10000-english/master/20k.txt');
                 const text = await r.text();
                 const words = text.split('\n');
@@ -335,14 +349,9 @@
                     const word = w.trim().toUpperCase();
                     if (word.length >= 3 && word.length <= 8) DICTIONARY.add(word); 
                 });
-                
-                // GUARANTEE: These words will always work even if the internet fails or the list is missing them.
                 ["BUSH", "MASH", "GASH", "MAUL", "BEAN", "SEEN", "SEAM", "GLOW", "GRID", "SWIPE", "ZEST", "BOLD", "WINS", "MAKE", "WORD", "TIME"].forEach(w => DICTIONARY.add(w));
-                
-                console.log(`✅ Dictionary Ready: ${DICTIONARY.size} words.`);
                 enableStartButtons();
             } catch (e) { 
-                console.warn("Dictionary load failed. Using basics."); 
                 ["BUSH", "BEAN", "SEEN", "SEAM", "MAKE", "BAND", "WORD", "PLAY", "GOLD", "GRID", "COOL", "LUCK", "BOLD", "PURE", "FAST", "TIME", "WINS", "GOOD", "DONE", "ROAD", "BIRD", "EARL", "BLUE", "FIRE"].forEach(w => DICTIONARY.add(w));
                 enableStartButtons();
             }
@@ -414,30 +423,31 @@
         }
 
         function updateUI() {
-            const total = Math.max(0, wordScore + placeBonusScore + lineBonusScore + gridBonusScore - penaltyPoints);
+            const placedCount = usedTrayIndices.size;
+            const total = Math.max(0, wordScore + placeBonusScore + lineBonusScore + gridBonusScore);
             document.getElementById('score-display').innerText = total;
-            const btn = document.getElementById('done-action-btn');
             const progFill = document.getElementById('progress-bar-fill');
-            progFill.style.width = `${(placementIndex / 16) * 100}%`;
+            progFill.style.width = `${(placedCount / 16) * 100}%`;
+            
+            const btn = document.getElementById('done-action-btn');
 
             if (currentPhase === PHASES.PLACE) {
-                btn.classList.add('opacity-0', 'pointer-events-none');
-                btn.classList.remove('btn-reveal');
                 document.getElementById('queue-box').classList.remove('hidden', 'opacity-0');
-            } else if (currentPhase === PHASES.REARRANGE) {
-                if (btn.classList.contains('opacity-0')) {
+                document.getElementById('circular-timer-box').classList.add('hidden');
+                
+                // Show "I'm Done" button only when grid is full
+                if (placedCount === 16) {
+                    btn.classList.remove('opacity-0', 'pointer-events-none');
                     btn.classList.add('btn-reveal');
+                } else {
+                    btn.classList.add('opacity-0', 'pointer-events-none');
+                    btn.classList.remove('btn-reveal');
                 }
-                btn.classList.remove('opacity-0', 'pointer-events-none');
-                btn.innerText = "SWAP LETTERS, CLICK WHEN DONE";
-                document.getElementById('queue-box').classList.add('hidden', 'opacity-0');
-                document.getElementById('swap-counter').classList.remove('hidden', 'opacity-0');
-                document.getElementById('swap-penalty').innerText = penaltyPoints > 0 ? `-${penaltyPoints}` : "0";
             } else if (currentPhase === PHASES.SWIPE) {
-                btn.innerText = "SWIPE WORDS - THE CLOCK IS TICKING!";
-                document.getElementById('swap-counter').classList.add('hidden');
+                document.getElementById('queue-box').classList.add('hidden', 'opacity-0');
                 document.getElementById('circular-timer-box').classList.remove('hidden');
                 document.getElementById('word-discovery').classList.remove('hidden');
+                btn.classList.add('opacity-0', 'pointer-events-none');
             }
         }
 
@@ -467,35 +477,60 @@
 
         function handleInteraction(idx, type) {
             if (currentPhase === PHASES.PLACE) {
-                if (type === 'start' && idx !== null && !grid[idx]) {
-                    grid[idx] = lettersToPlace[placementIndex++]; 
-                    checkPlacementBonus(idx);
-                    if (placementIndex === 16) { 
-                        setTimeout(() => { 
-                            currentPhase = PHASES.REARRANGE; 
-                            updateUI(); 
-                            renderGrid(); 
-                        }, 1500);
+                if (type === 'start' && idx !== null) {
+                    if (grid[idx] !== null) {
+                        if (selectedTrayIdx !== null) {
+                            const oldGridIdx = grid[idx];
+                            usedTrayIndices.delete(oldGridIdx);
+                            grid[idx] = selectedTrayIdx;
+                            usedTrayIndices.add(selectedTrayIdx);
+                            selectedTrayIdx = null;
+                        } else {
+                            selectedGridIdx = (selectedGridIdx === idx) ? null : idx;
+                        }
+                    } 
+                    else {
+                        if (selectedTrayIdx !== null) {
+                            grid[idx] = selectedTrayIdx;
+                            usedTrayIndices.add(selectedTrayIdx);
+                            selectedTrayIdx = null;
+                        } else if (selectedGridIdx !== null) {
+                            grid[idx] = grid[selectedGridIdx];
+                            grid[selectedGridIdx] = null;
+                            selectedGridIdx = null;
+                        }
                     }
+                    
+                    checkPlacementBonus();
+                    
                     hoveredCellIdx = null; renderGrid(); updateUI(); updateQueue();
-                } else if (type === 'move' && hoveredCellIdx !== idx) { hoveredCellIdx = idx; renderGrid(); }
-                else if (type === 'end') { hoveredCellIdx = null; renderGrid(); }
-            } else if (currentPhase === PHASES.REARRANGE && type === 'start' && idx !== null) {
-                if (swapStartIdx === null) swapStartIdx = idx;
-                else if (swapStartIdx === idx) swapStartIdx = null;
-                else {
-                    const temp = grid[idx]; grid[idx] = grid[swapStartIdx]; grid[swapStartIdx] = temp;
-                    penaltyPoints += 2; swapStartIdx = null; showFloatingPoint("-2"); renderGrid(); updateUI();
+                } else if (type === 'move' && hoveredCellIdx !== idx) { 
+                    hoveredCellIdx = idx; 
+                    renderGrid(); 
+                } else if (type === 'end') { 
+                    hoveredCellIdx = null; renderGrid(); 
                 }
-                renderGrid();
             } else if (currentPhase === PHASES.SWIPE) {
-                if (type === 'start' && idx !== null) { isSwiping = true; currentSwipePath = [idx]; swipeWord = grid[idx]; renderGrid(); }
-                else if (type === 'move' && isSwiping && idx !== null) {
-                    if (idx === currentSwipePath[currentSwipePath.length - 2]) { currentSwipePath.pop(); swipeWord = swipeWord.slice(0, -1); renderGrid(); return; }
+                if (type === 'start' && idx !== null) { 
+                    isSwiping = true; 
+                    currentSwipePath = [idx]; 
+                    swipeWord = lettersToPlace[grid[idx]]; 
+                    renderGrid(); 
+                } else if (type === 'move' && isSwiping && idx !== null) {
+                    if (idx === currentSwipePath[currentSwipePath.length - 2]) { 
+                        currentSwipePath.pop(); 
+                        swipeWord = swipeWord.slice(0, -1); 
+                        renderGrid(); 
+                        return; 
+                    }
                     if (!currentSwipePath.includes(idx)) {
                         const last = currentSwipePath[currentSwipePath.length - 1];
                         const r1 = Math.floor(last/4), c1 = last%4, r2 = Math.floor(idx/4), c2 = idx%4;
-                        if (Math.abs(r1-r2) <= 1 && Math.abs(c1-c2) <= 1) { currentSwipePath.push(idx); swipeWord += grid[idx]; renderGrid(); }
+                        if (Math.abs(r1-r2) <= 1 && Math.abs(c1-c2) <= 1) { 
+                            currentSwipePath.push(idx); 
+                            swipeWord += lettersToPlace[grid[idx]]; 
+                            renderGrid(); 
+                        }
                     }
                 } else if (type === 'end' && isSwiping) { validateWord(); isSwiping = false; currentSwipePath = []; swipeWord = ""; renderGrid(); }
             }
@@ -525,51 +560,62 @@
             updateUI();
         }
 
-        function checkPlacementBonus(idx) {
-            const r = Math.floor(idx / 4), c = idx % 4;
-            
-            // CHECK ROW
-            const rIdxs = [r*4, r*4+1, r*4+2, r*4+3];
-            if (!rIdxs.some(i => grid[i] === null)) {
-                const rS = rIdxs.map(i => grid[i]).join("");
-                const rSRev = rS.split("").reverse().join("");
-                if (!placementBonusLines.has(`r${r}`) && (DICTIONARY.has(rS) || DICTIONARY.has(rSRev))) {
-                    placementBonusLines.add(`r${r}`); 
-                    rIdxs.forEach(i => placementDetectedWords.add(i));
-                    placeBonusScore += 10; 
-                    showFloatingPoint("+10 EARLY BIRD");
+        function checkPlacementBonus() {
+            const oldScore = placeBonusScore;
+            placementBonusLines.clear();
+            placementDetectedWords.clear();
+            placeBonusScore = 0;
+
+            for(let i=0; i<4; i++) {
+                const rIdxs = [i*4, i*4+1, i*4+2, i*4+3];
+                if (rIdxs.every(idx => grid[idx] !== null)) {
+                    const s = rIdxs.map(idx => lettersToPlace[grid[idx]]).join("");
+                    const rev = s.split("").reverse().join("");
+                    if (DICTIONARY.has(s) || DICTIONARY.has(rev)) {
+                        placementBonusLines.add(`r${i}`);
+                        rIdxs.forEach(idx => placementDetectedWords.add(idx));
+                        placeBonusScore += 10;
+                    }
+                }
+                const cIdxs = [i, i+4, i+8, i+12];
+                if (cIdxs.every(idx => grid[idx] !== null)) {
+                    const s = cIdxs.map(idx => lettersToPlace[grid[idx]]).join("");
+                    const rev = s.split("").reverse().join("");
+                    if (DICTIONARY.has(s) || DICTIONARY.has(rev)) {
+                        placementBonusLines.add(`c${i}`);
+                        cIdxs.forEach(idx => placementDetectedWords.add(idx));
+                        placeBonusScore += 10;
+                    }
                 }
             }
-            
-            // CHECK COL
-            const cIdxs = [c, c+4, c+8, c+12];
-            if (!cIdxs.some(i => grid[i] === null)) {
-                const cS = cIdxs.map(i => grid[i]).join("");
-                const cSRev = cS.split("").reverse().join("");
-                if (!placementBonusLines.has(`c${c}`) && (DICTIONARY.has(cS) || DICTIONARY.has(cSRev))) {
-                    placementBonusLines.add(`c${c}`); 
-                    cIdxs.forEach(i => placementDetectedWords.add(i));
-                    placeBonusScore += 10; 
-                    showFloatingPoint("+10 EARLY BIRD");
-                }
-            }
+
+            if (placeBonusScore > oldScore) showFloatingPoint("+10 EARLY BIRD");
             updateUI();
         }
 
         function renderGrid() {
-            const next = lettersToPlace[placementIndex];
-            grid.forEach((char, i) => {
+            grid.forEach((trayIdx, i) => {
                 const cell = document.getElementById(`cell-${i}`); if (!cell) return;
                 const letterEl = cell.querySelector('.letter-container');
-                cell.classList.remove('bg-sky-500', 'text-slate-900', 'swiping-active', 'border-sky-400', 'cell-preview', 'placement-success');
-                if (char) { 
-                    letterEl.innerText = char; 
+                cell.classList.remove('bg-sky-500', 'text-slate-900', 'swiping-active', 'border-sky-400', 'cell-preview', 'placement-success', 'item-selected');
+                
+                if (trayIdx !== null) { 
+                    letterEl.innerText = lettersToPlace[trayIdx]; 
                     if (currentPhase === PHASES.PLACE && placementDetectedWords.has(i)) cell.classList.add('placement-success');
+                    if (currentPhase === PHASES.PLACE && selectedGridIdx === i) cell.classList.add('item-selected');
+                    if (currentPhase === PHASES.SWIPE && currentSwipePath.includes(i)) cell.classList.add('swiping-active');
                 }
-                else if (currentPhase === PHASES.PLACE && hoveredCellIdx === i && next) { letterEl.innerText = next; cell.classList.add('cell-preview'); }
-                else { letterEl.innerText = ''; }
-                if (currentPhase === PHASES.SWIPE && currentSwipePath.includes(i)) cell.classList.add('swiping-active');
-                if (currentPhase === PHASES.REARRANGE && swapStartIdx === i) cell.classList.add('bg-sky-500', 'text-slate-900', 'border-sky-400');
+                else if (currentPhase === PHASES.PLACE && hoveredCellIdx === i && selectedTrayIdx !== null) { 
+                    letterEl.innerText = lettersToPlace[selectedTrayIdx]; 
+                    cell.classList.add('cell-preview'); 
+                }
+                else if (currentPhase === PHASES.PLACE && hoveredCellIdx === i && selectedGridIdx !== null) {
+                    letterEl.innerText = lettersToPlace[grid[selectedGridIdx]];
+                    cell.classList.add('cell-preview');
+                }
+                else { 
+                    letterEl.innerText = ''; 
+                }
             });
         }
 
@@ -594,24 +640,18 @@
         async function showResults() {
             currentPhase = PHASES.RESULT; 
             document.getElementById('result-modal').classList.replace('hidden', 'flex');
-            
             let rF = 0, cF = 0;
             for(let i=0; i<4; i++) {
-                const rS = grid.slice(i*4, i*4+4).join(""); if (DICTIONARY.has(rS)) rF++;
-                const cS = [i, i+4, i+8, i+12].map(idx => grid[idx]).join(""); if (DICTIONARY.has(cS)) cF++;
+                const rS = grid.slice(i*4, i*4+4).map(idx => lettersToPlace[idx]).join(""); if (DICTIONARY.has(rS)) rF++;
+                const cS = [i, i+4, i+8, i+12].map(idx => lettersToPlace[grid[idx]]).join(""); if (DICTIONARY.has(cS)) cF++;
             }
-            
             const isFull = (rF === 4 && cF === 4);
-            // Tactician bonus: +40, Holy Grail: +100
             if (isFull) gridBonusScore = 100; else if (rF === 4 || cF === 4) gridBonusScore = 40;
-            
-            const total = Math.max(0, wordScore + placeBonusScore + lineBonusScore + gridBonusScore - penaltyPoints);
+            const total = Math.max(0, wordScore + placeBonusScore + lineBonusScore + gridBonusScore);
             const prevBest = JSON.parse(localStorage.getItem(STATS_KEY))?.highScore || 0;
             saveStats(total, !isPracticeMode);
-            
             document.getElementById('current-streak').innerText = streak; 
             document.getElementById('best-score').innerText = highScore;
-            
             const banner = document.getElementById('new-record-badge');
             if (total > prevBest && !isPracticeMode) {
                 banner.innerText = "NEW RECORD!";
@@ -619,23 +659,21 @@
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 banner.classList.add('hidden');
             }
-            
             await animateValue('final-score', 0, total, 1000);
             await new Promise(resolve => setTimeout(resolve, 500));
-            
             if (!isPracticeMode) {
                 if (total >= 100) badgesEarned.century++;
                 if (isFull) badgesEarned.architect++;
                 if (foundWords.length >= 30) badgesEarned.warp++;
                 if (rF === 4 || cF === 4) badgesEarned.tactician++;
-                if (penaltyPoints === 0) badgesEarned.pure++;
+                badgesEarned.pure++; 
                 localStorage.setItem(STATS_KEY, JSON.stringify({ highScore, streak, lastPlayedDate, badgesEarned }));
             }
             renderBadges();
         }
 
         const copyToClipboard = () => {
-            const total = Math.max(0, wordScore + placeBonusScore + lineBonusScore + gridBonusScore - penaltyPoints);
+            const total = Math.max(0, wordScore + placeBonusScore + lineBonusScore + gridBonusScore);
             let gridVisual = "";
             for(let i=0; i<16; i++) {
                 if (placementDetectedWords.has(i)) gridVisual += "🟩"; else if (wordUsedCells.has(i)) gridVisual += "🟦"; else gridVisual += "⬛";
@@ -643,11 +681,9 @@
             }
             const bM = { architect:'🏆', century:'💯', warp:'🚀', tactician:'4️⃣', pure:'🚫' };
             let bS = ""; Object.keys(badgesEarned).forEach(k => { if(badgesEarned[k] > 0) { bS += bM[k]; if (badgesEarned[k] > 1) bS += `^${badgesEarned[k]}`; } });
-            
             const cS = [customShoutText, activeShout].filter(Boolean).join(" ");
             const sH = cS ? `${cS}\n\n` : "";
             const text = `${sH}gridee #${getGameNumber()}\nScore: ${total} | Streak: ${streak}🔥\n${bS ? 'Badges: ' + bS + '\n' : ''}${gridVisual}\nPlay: https://planomy.github.io/gridee`;
-            
             const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select();
             document.execCommand('copy'); document.body.removeChild(el);
             const t = document.getElementById('toast'); 
@@ -660,7 +696,7 @@
             century: { title: "Century Club", icon: "💯", desc: "Cross the 100 point milestone." },
             warp: { title: "Warp Speed", icon: "🚀", desc: "Found 30 or more words in 1 minute." },
             tactician: { title: "Line Master", icon: "4️⃣", desc: "Cleared 4 rows or columns." },
-            pure: { title: "Pure Play", icon: "🚫", desc: "Finished with 0 Swaps." }
+            pure: { title: "Elite Player", icon: "🚫", desc: "Classic Gridee performance." }
         };
 
         function showBadgeInfo(key) {
@@ -687,6 +723,49 @@
             });
         }
 
+        function handleTrayClick(idx) {
+            if (currentPhase !== PHASES.PLACE) return;
+            if (selectedGridIdx !== null) {
+                usedTrayIndices.delete(grid[selectedGridIdx]);
+                grid[selectedGridIdx] = null;
+                selectedGridIdx = null;
+            } else {
+                if (usedTrayIndices.has(idx)) return;
+                selectedTrayIdx = (selectedTrayIdx === idx) ? null : idx;
+            }
+            checkPlacementBonus();
+            updateQueue();
+            renderGrid();
+        }
+
+        function updateQueue() {
+            const tray = document.getElementById('letter-tray');
+            const label = document.getElementById('tray-label');
+            if (!tray) return;
+            tray.innerHTML = '';
+            lettersToPlace.forEach((char, idx) => {
+                const isUsed = usedTrayIndices.has(idx);
+                const isSelected = selectedTrayIdx === idx;
+                const letterDiv = document.createElement('div');
+                letterDiv.className = `w-8 h-8 rounded-lg flex items-center justify-center text-sm font-800 transition-all border tray-letter-cell ${
+                    isUsed 
+                    ? 'bg-slate-900 text-slate-700 border-slate-800 opacity-20 cursor-default' 
+                    : isSelected 
+                        ? 'item-selected' 
+                        : 'bg-slate-700 text-sky-400 border-slate-600 hover:border-sky-500'
+                }`;
+                letterDiv.innerText = char;
+                letterDiv.addEventListener('mousedown', () => handleTrayClick(idx));
+                letterDiv.addEventListener('touchstart', (e) => { e.preventDefault(); handleTrayClick(idx); });
+                tray.appendChild(letterDiv);
+            });
+            if (label) {
+                if (selectedTrayIdx !== null) label.innerText = `Holding ${lettersToPlace[selectedTrayIdx]}`;
+                else if (selectedGridIdx !== null) label.innerText = `Moving ${lettersToPlace[grid[selectedGridIdx]]}`;
+                else label.innerText = "Pick a Letter";
+            }
+        }
+
         function updateShout(btn, text) {
             document.querySelectorAll('.shout-chip').forEach(c => c.classList.remove('active'));
             btn.classList.add('active'); activeShout = text;
@@ -695,31 +774,33 @@
 
         const startNewGame = (mode) => {
             if (swipeTimerInterval) clearInterval(swipeTimerInterval);
-            isPracticeMode = mode === 'practice'; grid = Array(16).fill(null); placementIndex = 0; penaltyPoints = 0; wordScore = 0; placeBonusScore = 0; lineBonusScore = 0; gridBonusScore = 0; foundWords = []; wordUsedCells.clear(); placementDetectedWords.clear(); placementBonusLines.clear();
+            isPracticeMode = mode === 'practice'; 
+            grid = Array(16).fill(null); 
+            usedTrayIndices.clear();
+            selectedTrayIdx = null;
+            selectedGridIdx = null;
+            wordScore = 0; placeBonusScore = 0; lineBonusScore = 0; gridBonusScore = 0; 
+            foundWords = []; wordUsedCells.clear(); placementDetectedWords.clear(); placementBonusLines.clear();
             document.getElementById('splash-screen').style.display = 'none';
             document.getElementById('result-modal').classList.add('hidden');
             document.getElementById('game-container').classList.remove('opacity-0');
             document.getElementById('word-discovery').classList.add('hidden');
             document.getElementById('word-columns').innerHTML = '';
-            document.getElementById('next-letter').classList.remove('hidden');
             document.getElementById('queue-box').classList.remove('hidden');
             document.getElementById('circular-timer-box').classList.add('hidden');
-            document.getElementById('swap-counter').classList.add('hidden');
             document.getElementById('new-record-badge').classList.add('hidden');
-            currentPhase = PHASES.PLACE; lettersToPlace = generateLetterSet(); createGrid(); renderGrid(); updateUI(); updateQueue(); renderBadges();
+            currentPhase = PHASES.PLACE; 
+            lettersToPlace = generateLetterSet(); 
+            createGrid(); 
+            renderGrid(); 
+            updateUI(); 
+            updateQueue(); 
+            renderBadges();
         };
 
         function showFloatingPoint(text) {
             const c = document.getElementById('game-grid-container'); const f = document.createElement('div'); f.className = `floating-point`; f.innerText = text;
             f.style.left = '50%'; f.style.top = '10px'; c.appendChild(f); setTimeout(() => f.remove(), 1440);
-        }
-        function updateQueue() {
-            const next = lettersToPlace[placementIndex]; const nL = document.getElementById('next-letter');
-            if (next) { nL.innerText = next; nL.classList.remove('hidden'); } else { nL.classList.add('hidden'); }
-            const mQ = document.getElementById('mini-queue'); mQ.innerHTML = '';
-            for(let i = 5; i >= 1; i--) {
-                const ch = lettersToPlace[placementIndex + i]; if (ch) { const d = document.createElement('div'); d.className = 'w-6 h-6 bg-slate-800 rounded border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-400'; d.innerText = ch; mQ.appendChild(d); }
-            }
         }
 
         function updateCountdown() {
@@ -738,8 +819,12 @@
             document.getElementById('how-to-btn').addEventListener('click', () => document.getElementById('how-to-overlay').classList.remove('hidden'));
             document.getElementById('close-how-to').addEventListener('click', () => document.getElementById('how-to-overlay').classList.add('hidden'));
             document.getElementById('done-action-btn').addEventListener('click', () => {
-                if (currentPhase === PHASES.REARRANGE) { currentPhase = PHASES.SWIPE; updateUI(); startSwipeTimer(); }
-                renderGrid();
+                if (currentPhase === PHASES.PLACE && usedTrayIndices.size === 16) {
+                    currentPhase = PHASES.SWIPE;
+                    updateUI();
+                    startSwipeTimer();
+                    renderGrid();
+                }
             });
             document.getElementById('share-btn').addEventListener('click', copyToClipboard);
             document.getElementById('play-practice-again-btn').addEventListener('click', () => startNewGame('practice'));
