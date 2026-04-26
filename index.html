@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     <title>Gridee - The Word Grid</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;800&display=swap" rel="stylesheet">
@@ -14,38 +14,38 @@
             --pink-purple: linear-gradient(135deg, #a21caf, #6b21a8);
         }
         html, body {
-            height: 100%; height: 100vh; height: 100dvh; 
+            height: 100%; height: 100vh; height: 100dvh;
             margin: 0; padding: 0; overflow: hidden;
             background-color: #020617;
         }
         body {
-            font-family: 'Lexend', sans-serif; touch-action: none; overscroll-behavior: none; user-select: none;
+            font-family: 'Lexend', sans-serif; touch-action: pan-x pan-y; overscroll-behavior: none; user-select: none;
             color: #f8fafc; width: 100vw;
             display: flex; flex-direction: column; align-items: center;
             padding-bottom: env(safe-area-inset-bottom);
             box-sizing: border-box;
             -webkit-font-smoothing: antialiased;
         }
-        
+
         header { padding-top: max(8px, env(safe-area-inset-top)); margin-bottom: 4px; z-index: 50; width: 100%; display: flex; justify-content: center; }
         #game-container { margin-top: 0; padding-top: 0px; flex: 1; display: flex; flex-direction: column; width: 100%; max-width: 28rem; }
 
         .grid-cell {
             aspect-ratio: 1 / 1; transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.1s ease;
             border: 2px solid rgba(30, 41, 59, 0.3); position: relative; display: flex; align-items: center; justify-content: center;
-            touch-action: manipulation;
+            touch-action: none;
         }
         .letter-container { pointer-events: none; z-index: 5; }
         .cell-preview { opacity: 0.4; color: #38bdf8; transform: scale(0.9); background-color: rgba(56, 189, 248, 0.1); }
-        
-        .item-selected { 
-            border-color: #38bdf8 !important; 
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6); 
-            background-color: #38bdf8 !important; 
-            color: #020617 !important; 
-            transform: scale(1.1); 
-            animation: active-pulse 1.5s infinite ease-in-out; 
-            z-index: 10; 
+
+        .item-selected {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+            background-color: #38bdf8 !important;
+            color: #020617 !important;
+            transform: scale(1.1);
+            animation: active-pulse 1.5s infinite ease-in-out;
+            z-index: 10;
         }
 
         .swiping-active {
@@ -60,7 +60,15 @@
             color: #ecfdf5 !important;
             transform: scale(1.02);
         }
-        
+
+        .swap-flash {
+            animation: swap-flash-anim 0.35s ease forwards;
+        }
+        @keyframes swap-flash-anim {
+            0% { background-color: #fbbf24; color: #020617; transform: scale(1.15); }
+            100% { background-color: ''; transform: scale(1); }
+        }
+
         @keyframes active-pulse { 0%, 100% { transform: scale(1.1); filter: brightness(1); } 50% { transform: scale(1.15); filter: brightness(1.2); } }
 
         .shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
@@ -70,7 +78,7 @@
             30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
-        
+
         .floating-point {
             position: absolute; pointer-events: none; font-weight: 800; z-index: 100;
             color: #fbbf24; font-size: 1.6rem; text-shadow: 0 4px 12px rgba(0, 0, 0, 1);
@@ -84,12 +92,19 @@
 
         #game-grid { max-height: 52dvh; aspect-ratio: 1 / 1; width: 100%; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 4px; box-sizing: border-box; }
 
+        /* Pinch zoom wrapper */
+        #grid-zoom-wrapper {
+            transform-origin: center center;
+            transition: transform 0.05s ease-out;
+            width: 100%;
+        }
+
         .shout-chip { flex: 0 0 auto; padding: 8px 16px; border-radius: 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.85rem; transition: all 0.2s ease; cursor: pointer; color: #f8fafc; white-space: nowrap; }
         .shout-chip.active { background: #38bdf8; color: #020617; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
-        
-        .custom-shout-input { 
-            background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; 
-            padding: 12px 16px; color: #f8fafc; width: 100%; outline: none; font-family: 'Lexend', sans-serif; 
+
+        .custom-shout-input {
+            background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
+            padding: 12px 16px; color: #f8fafc; width: 100%; outline: none; font-family: 'Lexend', sans-serif;
             margin-top: 12px; transition: border-color 0.2s;
         }
         .custom-shout-input:focus { border-color: #38bdf8; }
@@ -99,11 +114,11 @@
         .badge-shield { position: absolute; width: 100%; height: 100%; background: var(--gold-metallic); clip-path: polygon(0% 0%, 100% 0%, 100% 70%, 50% 100%, 0% 70%); box-shadow: inset 0 2px 10px rgba(255,255,255,0.4); }
         .badge-icon-overlay { position: relative; z-index: 2; font-size: 1.2rem; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); margin-top: -8px; }
         .badge-slot.locked { filter: grayscale(1); opacity: 0.05; transform: scale(0.85); }
-        .badge-slot.unlocked { 
-            filter: grayscale(0); opacity: 1; 
+        .badge-slot.unlocked {
+            filter: grayscale(0); opacity: 1;
             animation: premium-reveal 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
-        
+
         @keyframes premium-reveal {
             0% { transform: scale(0.8) rotate(-10deg); filter: brightness(2) drop-shadow(0 0 20px gold); }
             50% { transform: scale(1.2) rotate(5deg); }
@@ -113,7 +128,7 @@
         .badge-counter { position: absolute; top: -2px; right: -8px; background: #38bdf8; color: #020617; font-size: 8px; font-weight: 900; padding: 1px 4px; border-radius: 6px; border: 1px solid #020617; z-index: 10; pointer-events: none; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
         @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
-        
+
         .timer-circle { transform: rotate(-90deg); filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.4)); }
         .timer-bg { fill: none; stroke: rgba(255, 255, 255, 0.05); stroke-width: 4; }
         .timer-progress { fill: none; stroke: #38bdf8; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 0.2s linear; }
@@ -124,8 +139,8 @@
 
         .tray-letter-cell { cursor: pointer; touch-action: manipulation; transition: all 0.2s ease; }
 
-        .record-banner-active { 
-            animation: spotlight-reveal 2.0s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+        .record-banner-active {
+            animation: spotlight-reveal 2.0s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         @keyframes spotlight-reveal {
             0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
@@ -133,6 +148,9 @@
             80% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
             100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); pointer-events: none; }
         }
+
+        /* Zoom hint */
+        #zoom-hint { position: absolute; bottom: 6px; right: 8px; font-size: 9px; color: rgba(56,189,248,0.35); font-weight: 700; letter-spacing: 0.1em; pointer-events: none; text-transform: uppercase; }
     </style>
 </head>
 <body class="flex flex-col items-center">
@@ -179,7 +197,7 @@
             <div class="space-y-6 text-left mb-10 w-full text-sm px-2">
                 <div class="flex gap-4 items-start">
                     <span class="w-8 h-8 shrink-0 bg-sky-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">1</span>
-                    <p class="text-slate-300 leading-relaxed font-semibold">Flexible Placement: Tap a letter from the tray to place it, or tap a placed letter to move it.</p>
+                    <p class="text-slate-300 leading-relaxed font-semibold">Tap a letter from the tray to select it, then tap a grid cell to place it. Once all 16 are placed, tap any two cells to swap them.</p>
                 </div>
                 <div class="flex gap-4 items-start">
                     <span class="w-8 h-8 shrink-0 bg-emerald-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">2</span>
@@ -187,7 +205,7 @@
                 </div>
                 <div class="flex gap-4 items-start">
                     <span class="w-8 h-8 shrink-0 bg-sky-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">3</span>
-                    <p class="text-slate-300 leading-relaxed font-semibold">Ready to swipe? Click "I'M DONE" in the tray area to start the 60-second timer and swipe words!</p>
+                    <p class="text-slate-300 leading-relaxed font-semibold">Hit "I'M DONE" to start the 60-second timer and swipe words! Pinch to zoom the grid.</p>
                 </div>
             </div>
             <button id="close-how-to" class="px-12 py-4 bg-sky-500 text-slate-950 rounded-2xl font-800 uppercase tracking-widest text-xs active:scale-95 transition-all">Got it</button>
@@ -215,20 +233,17 @@
 
         <div id="hud-bar">
             <div id="right-hud-content" class="flex flex-col items-center gap-2 w-full min-h-[84px] relative">
-                <!-- TRAY CONTAINER -->
                 <div id="queue-box" class="w-full flex flex-col items-center transition-all duration-300">
                     <div id="letter-tray" class="grid grid-cols-8 gap-1.5 mb-2"></div>
                     <div id="tray-label" class="text-[8px] font-bold text-sky-500/50 uppercase tracking-[0.2em] mb-2">Pick a Letter</div>
                 </div>
 
-                <!-- DONE BUTTON -->
                 <div id="done-btn-container" class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
                     <button id="done-action-btn" style="background: var(--pink-purple);" class="w-full py-4 text-white rounded-2xl font-800 uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all">
                         I'M DONE
                     </button>
                 </div>
 
-                <!-- TIMER BOX -->
                 <div id="circular-timer-box" class="hidden relative w-20 h-20 flex items-center justify-center">
                     <svg class="timer-circle" width="80" height="80">
                         <circle class="timer-bg" cx="40" cy="40" r="36"></circle>
@@ -240,20 +255,21 @@
         </div>
 
         <div id="game-grid-container" class="relative group shrink-0 mb-1 overflow-visible z-10">
-            <div id="game-grid"></div>
+            <div id="grid-zoom-wrapper">
+                <div id="game-grid"></div>
+            </div>
+            <div id="zoom-hint">pinch to zoom</div>
             <div id="time-up-overlay">
                 <button id="time-up-btn" class="bg-slate-950 border-2 border-sky-500/30 text-white font-800 px-10 py-5 rounded-3xl shadow-2xl scale-125 transition-transform uppercase tracking-tighter">TIME UP!</button>
             </div>
         </div>
-        
-        <!-- VISUAL SPACING HINT -->
+
         <div id="swipe-hint" class="hidden w-full text-center mt-4">
             <span class="text-sky-400/30 font-800 text-[10px] uppercase tracking-[0.4em] animate-pulse">Swipe Words in the Grid</span>
         </div>
     </main>
 
     <div id="result-modal" class="fixed inset-0 hidden flex-col items-center p-4 z-[300] results-overlay">
-        <!-- FIXED: max-w-sm added, m-auto added for perfect centering and constraint -->
         <div class="w-full max-w-sm m-auto flex flex-col items-center text-center py-8 px-4 relative">
             <div class="flex gap-6 mb-4 items-center justify-center w-full">
                 <div class="flex flex-col items-center">
@@ -299,7 +315,6 @@
     <div id="toast" class="fixed top-10 left-1/2 -translate-x-1/2 bg-white text-slate-950 px-8 py-3 rounded-full font-800 shadow-2xl opacity-0 transition-all pointer-events-none z-[400] text-xs">Copied!</div>
 
     <script>
-        // ADDED BACK: getGameNumber utility for clipboard sharing
         function getGameNumber() {
             const epoch = new Date('2025-02-20').getTime();
             return Math.floor((new Date().getTime() - epoch) / (1000 * 60 * 60 * 24)) + 1;
@@ -307,14 +322,14 @@
 
         const STATS_KEY = "gridee_device_stats_v3";
         const TIME_UP_PHRASES = ["That's it amigo", "Whoah stop!", "That'll do", "Muchos gracias", "Stop, in the name of love"];
-        
+
         let highScore = 0, streak = 0, lastPlayedDate = null;
         let badgesEarned = { century: 0, architect: 0, warp: 0, tactician: 0, pure: 0 };
         const PHASES = { PLACE: 0, SWIPE: 1, RESULT: 2 };
-        
-        let currentPhase = PHASES.PLACE; 
-        let grid = Array(16).fill(null); 
-        let lettersToPlace = []; 
+
+        let currentPhase = PHASES.PLACE;
+        let grid = Array(16).fill(null);
+        let lettersToPlace = [];
         let usedTrayIndices = new Set();
         let selectedTrayIdx = null;
         let selectedGridIdx = null;
@@ -326,21 +341,28 @@
         let activeShout = "", customShoutText = "";
         let swipeTimerInterval = null, swipeTimeRemaining = 60;
 
+        // Pinch zoom state
+        let currentZoom = 1.0;
+        const MIN_ZOOM = 1.0;
+        const MAX_ZOOM = 2.5;
+        let pinchStartDist = 0;
+        let pinchStartZoom = 1.0;
+
         const DICTIONARY = new Set();
-        
+
         async function loadDictionary() {
             try {
                 const r = await fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt');
                 const text = await r.text();
                 const words = text.split('\r\n');
                 DICTIONARY.clear();
-                words.forEach(w => { 
+                words.forEach(w => {
                     const word = w.trim().toUpperCase();
-                    if (word.length >= 3 && word.length <= 8) DICTIONARY.add(word); 
+                    if (word.length >= 3 && word.length <= 8) DICTIONARY.add(word);
                 });
                 ["BUSH", "MASH", "GASH", "BEAN", "GRID", "SWIPE", "ZEST", "BOLD", "SLY"].forEach(w => DICTIONARY.add(w));
                 enableStartButtons();
-            } catch (e) { 
+            } catch (e) {
                 ["BUSH", "BEAN", "SEEN", "SEAM", "MAKE", "WORD", "PLAY", "GOLD", "GRID", "SLY", "COOL"].forEach(w => DICTIONARY.add(w));
                 enableStartButtons();
             }
@@ -350,12 +372,13 @@
             const dailyBtn = document.getElementById('start-daily-btn');
             const practiceBtn = document.getElementById('start-practice-btn');
             const today = new Date().toISOString().split('T')[0];
-            
+
             if (lastPlayedDate !== today) {
                 dailyBtn.innerText = "Play Daily";
                 dailyBtn.classList.remove('opacity-40', 'pointer-events-none');
             } else {
                 dailyBtn.innerText = "Daily Done!";
+                // Keep disabled — don't let them replay daily
             }
             practiceBtn.innerText = "Practice Mode";
             practiceBtn.classList.remove('opacity-40', 'pointer-events-none');
@@ -365,7 +388,7 @@
             const el = document.getElementById(id); if (!el) return;
             el.classList.add('tally-animating');
             return new Promise(resolve => {
-                let current = start; 
+                let current = start;
                 if (Math.abs(end - start) === 0) { el.innerText = end; el.classList.remove('tally-animating'); resolve(); return; }
                 const timer = setInterval(() => {
                     current += (end > start ? 1 : -1); el.innerText = current;
@@ -396,7 +419,7 @@
         }
 
         function generateLetterSet() {
-            const seed = isPracticeMode ? Math.floor(Math.random() * 1000000) : Math.floor(Date.now() / 86400000); 
+            const seed = isPracticeMode ? Math.floor(Math.random() * 1000000) : Math.floor(Date.now() / 86400000);
             seedRandom(seed);
             const vW = { 'A': 9, 'E': 12, 'I': 9, 'O': 8, 'U': 4 };
             const cW = { 'R': 9, 'S': 9, 'T': 9, 'L': 8, 'N': 8, 'D': 7, 'G': 5, 'C': 5, 'M': 5, 'P': 5, 'H': 5, 'B': 4, 'F': 4, 'Y': 4, 'W': 3, 'K': 3, 'V': 2, 'X': 1, 'J': 1, 'Z': 1, 'Q': 1 };
@@ -417,7 +440,7 @@
             document.getElementById('score-display').innerText = total;
             const progFill = document.getElementById('progress-bar-fill');
             progFill.style.width = `${(placedCount / 16) * 100}%`;
-            
+
             const queueBox = document.getElementById('queue-box');
             const doneBtnContainer = document.getElementById('done-btn-container');
             const swipeHint = document.getElementById('swipe-hint');
@@ -425,7 +448,7 @@
             if (currentPhase === PHASES.PLACE) {
                 document.getElementById('circular-timer-box').classList.add('hidden');
                 swipeHint.classList.add('hidden');
-                
+
                 if (placedCount === 16) {
                     queueBox.classList.add('opacity-0', 'pointer-events-none');
                     doneBtnContainer.classList.remove('opacity-0', 'pointer-events-none');
@@ -454,75 +477,163 @@
                 container.appendChild(cell);
             }
             window.addEventListener('mouseup', () => handleInteraction(null, 'end'));
-            window.addEventListener('touchend', () => handleInteraction(null, 'end'));
+            window.addEventListener('touchend', (e) => {
+                // Only end swipe if it's not a pinch ending
+                if (e.touches.length === 0) handleInteraction(null, 'end');
+            });
             container.addEventListener('touchmove', (e) => {
-                e.preventDefault(); const touch = e.touches[0];
+                // If 2 fingers, let pinch handler deal with it
+                if (e.touches.length >= 2) return;
+                e.preventDefault();
+                const touch = e.touches[0];
                 const el = document.elementFromPoint(touch.clientX, touch.clientY);
                 if (el?.classList.contains('grid-cell') || el?.parentElement?.classList.contains('grid-cell')) {
                     const cellEl = el.classList.contains('grid-cell') ? el : el.parentElement;
                     handleInteraction(parseInt(cellEl.dataset.index), 'move');
                 }
             }, { passive: false });
+
+            setupPinchZoom();
         }
 
+        // ---- PINCH ZOOM ----
+        function setupPinchZoom() {
+            const wrapper = document.getElementById('game-grid-container');
+            const zoomEl = document.getElementById('grid-zoom-wrapper');
+
+            wrapper.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    pinchStartDist = getPinchDist(e.touches);
+                    pinchStartZoom = currentZoom;
+                }
+            }, { passive: false });
+
+            wrapper.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const dist = getPinchDist(e.touches);
+                    const ratio = dist / pinchStartDist;
+                    currentZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, pinchStartZoom * ratio));
+                    zoomEl.style.transform = `scale(${currentZoom})`;
+                }
+            }, { passive: false });
+
+            wrapper.addEventListener('touchend', (e) => {
+                if (e.touches.length < 2) {
+                    // Snap back to 1 if close to 1
+                    if (currentZoom < 1.15) {
+                        currentZoom = 1.0;
+                        zoomEl.style.transform = `scale(1)`;
+                    }
+                }
+            });
+
+            // Mouse wheel zoom for desktop testing
+            wrapper.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                currentZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, currentZoom + delta));
+                zoomEl.style.transform = `scale(${currentZoom})`;
+            }, { passive: false });
+        }
+
+        function getPinchDist(touches) {
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        // ---- SWAP LOGIC ----
+        // When all 16 placed and in PLACE phase, clicking two cells swaps them
         function handleInteraction(idx, type) {
             if (currentPhase === PHASES.PLACE) {
                 if (type === 'start' && idx !== null) {
-                    if (grid[idx] !== null) {
-                        if (selectedTrayIdx !== null) {
-                            const oldGridIdx = grid[idx];
-                            usedTrayIndices.delete(oldGridIdx);
-                            grid[idx] = selectedTrayIdx;
-                            usedTrayIndices.add(selectedTrayIdx);
-                            selectedTrayIdx = null;
-                        } else {
-                            selectedGridIdx = (selectedGridIdx === idx) ? null : idx;
-                        }
-                    } 
-                    else {
-                        if (selectedTrayIdx !== null) {
-                            grid[idx] = selectedTrayIdx;
-                            usedTrayIndices.add(selectedTrayIdx);
-                            selectedTrayIdx = null;
-                        } else if (selectedGridIdx !== null) {
-                            grid[idx] = grid[selectedGridIdx];
-                            grid[selectedGridIdx] = null;
+                    const allPlaced = usedTrayIndices.size === 16;
+
+                    if (allPlaced) {
+                        // SWAP MODE: first tap selects, second tap swaps
+                        if (selectedGridIdx === null) {
+                            selectedGridIdx = idx;
+                        } else if (selectedGridIdx === idx) {
+                            // Deselect if same cell tapped again
                             selectedGridIdx = null;
+                        } else {
+                            // Swap the two cells
+                            const tmp = grid[idx];
+                            grid[idx] = grid[selectedGridIdx];
+                            grid[selectedGridIdx] = tmp;
+                            // Flash both cells
+                            flashSwap(idx, selectedGridIdx);
+                            selectedGridIdx = null;
+                            checkPlacementBonus();
                         }
+                    } else {
+                        // Normal placement mode
+                        if (grid[idx] !== null) {
+                            if (selectedTrayIdx !== null) {
+                                const oldGridIdx = grid[idx];
+                                usedTrayIndices.delete(oldGridIdx);
+                                grid[idx] = selectedTrayIdx;
+                                usedTrayIndices.add(selectedTrayIdx);
+                                selectedTrayIdx = null;
+                            } else {
+                                selectedGridIdx = (selectedGridIdx === idx) ? null : idx;
+                            }
+                        } else {
+                            if (selectedTrayIdx !== null) {
+                                grid[idx] = selectedTrayIdx;
+                                usedTrayIndices.add(selectedTrayIdx);
+                                selectedTrayIdx = null;
+                            } else if (selectedGridIdx !== null) {
+                                grid[idx] = grid[selectedGridIdx];
+                                grid[selectedGridIdx] = null;
+                                selectedGridIdx = null;
+                            }
+                        }
+                        checkPlacementBonus();
                     }
-                    
-                    checkPlacementBonus();
+
                     hoveredCellIdx = null; renderGrid(); updateUI(); updateQueue();
-                } else if (type === 'move' && hoveredCellIdx !== idx) { 
-                    hoveredCellIdx = idx; 
-                    renderGrid(); 
-                } else if (type === 'end') { 
-                    hoveredCellIdx = null; renderGrid(); 
+                } else if (type === 'move' && hoveredCellIdx !== idx) {
+                    hoveredCellIdx = idx;
+                    renderGrid();
+                } else if (type === 'end') {
+                    hoveredCellIdx = null; renderGrid();
                 }
             } else if (currentPhase === PHASES.SWIPE) {
-                if (type === 'start' && idx !== null) { 
-                    isSwiping = true; 
-                    currentSwipePath = [idx]; 
-                    swipeWord = lettersToPlace[grid[idx]]; 
-                    renderGrid(); 
+                if (type === 'start' && idx !== null) {
+                    isSwiping = true;
+                    currentSwipePath = [idx];
+                    swipeWord = lettersToPlace[grid[idx]];
+                    renderGrid();
                 } else if (type === 'move' && isSwiping && idx !== null) {
-                    if (idx === currentSwipePath[currentSwipePath.length - 2]) { 
-                        currentSwipePath.pop(); 
-                        swipeWord = swipeWord.slice(0, -1); 
-                        renderGrid(); 
-                        return; 
+                    if (idx === currentSwipePath[currentSwipePath.length - 2]) {
+                        currentSwipePath.pop();
+                        swipeWord = swipeWord.slice(0, -1);
+                        renderGrid();
+                        return;
                     }
                     if (!currentSwipePath.includes(idx)) {
                         const last = currentSwipePath[currentSwipePath.length - 1];
                         const r1 = Math.floor(last/4), c1 = last%4, r2 = Math.floor(idx/4), c2 = idx%4;
-                        if (Math.abs(r1-r2) <= 1 && Math.abs(c1-c2) <= 1) { 
-                            currentSwipePath.push(idx); 
-                            swipeWord += lettersToPlace[grid[idx]]; 
-                            renderGrid(); 
+                        if (Math.abs(r1-r2) <= 1 && Math.abs(c1-c2) <= 1) {
+                            currentSwipePath.push(idx);
+                            swipeWord += lettersToPlace[grid[idx]];
+                            renderGrid();
                         }
                     }
                 } else if (type === 'end' && isSwiping) { validateWord(); isSwiping = false; currentSwipePath = []; swipeWord = ""; renderGrid(); }
             }
+        }
+
+        function flashSwap(idx1, idx2) {
+            [idx1, idx2].forEach(i => {
+                const cell = document.getElementById(`cell-${i}`);
+                if (!cell) return;
+                cell.classList.add('swap-flash');
+                setTimeout(() => cell.classList.remove('swap-flash'), 350);
+            });
         }
 
         function validateWord() {
@@ -579,32 +690,35 @@
         }
 
         function renderGrid() {
+            const allPlaced = usedTrayIndices.size === 16 && currentPhase === PHASES.PLACE;
             grid.forEach((trayIdx, i) => {
                 const cell = document.getElementById(`cell-${i}`); if (!cell) return;
                 const letterEl = cell.querySelector('.letter-container');
                 cell.classList.remove('bg-sky-500', 'text-slate-900', 'swiping-active', 'border-sky-400', 'cell-preview', 'placement-success', 'item-selected');
-                
-                if (trayIdx !== null) { 
-                    letterEl.innerText = lettersToPlace[trayIdx]; 
+
+                if (trayIdx !== null) {
+                    letterEl.innerText = lettersToPlace[trayIdx];
                     if (currentPhase === PHASES.PLACE && placementDetectedWords.has(i)) cell.classList.add('placement-success');
                     if (currentPhase === PHASES.PLACE && selectedGridIdx === i) cell.classList.add('item-selected');
                     if (currentPhase === PHASES.SWIPE && currentSwipePath.includes(i)) cell.classList.add('swiping-active');
-                }
-                else if (currentPhase === PHASES.PLACE && hoveredCellIdx === i && selectedTrayIdx !== null) { 
-                    letterEl.innerText = lettersToPlace[selectedTrayIdx]; 
-                    cell.classList.add('cell-preview'); 
-                }
-                else if (currentPhase === PHASES.PLACE && hoveredCellIdx === i && selectedGridIdx !== null) {
+                    // In swap mode, show a subtle cursor hint
+                    if (allPlaced) cell.style.cursor = 'pointer';
+                } else if (currentPhase === PHASES.PLACE && hoveredCellIdx === i && selectedTrayIdx !== null) {
+                    letterEl.innerText = lettersToPlace[selectedTrayIdx];
+                    cell.classList.add('cell-preview');
+                } else if (currentPhase === PHASES.PLACE && hoveredCellIdx === i && selectedGridIdx !== null) {
                     letterEl.innerText = lettersToPlace[grid[selectedGridIdx]];
                     cell.classList.add('cell-preview');
+                } else {
+                    letterEl.innerText = '';
+                    cell.style.cursor = '';
                 }
-                else { letterEl.innerText = ''; }
             });
         }
 
         function startSwipeTimer() {
             swipeTimeRemaining = 60; const progress = document.getElementById('timer-progress');
-            const text = document.getElementById('timer-text'); 
+            const text = document.getElementById('timer-text');
             const circumference = 2 * Math.PI * 36;
             if (progress) { progress.style.strokeDasharray = circumference; progress.style.strokeDashoffset = 0; }
             swipeTimerInterval = setInterval(() => {
@@ -621,7 +735,7 @@
         }
 
         async function showResults() {
-            currentPhase = PHASES.RESULT; 
+            currentPhase = PHASES.RESULT;
             document.getElementById('result-modal').classList.replace('hidden', 'flex');
             let rF = 0, cF = 0;
             for(let i=0; i<4; i++) {
@@ -633,7 +747,7 @@
             const total = Math.max(0, wordScore + placeBonusScore + lineBonusScore + gridBonusScore);
             const prevBest = JSON.parse(localStorage.getItem(STATS_KEY))?.highScore || 0;
             saveStats(total, !isPracticeMode);
-            document.getElementById('current-streak').innerText = streak; 
+            document.getElementById('current-streak').innerText = streak;
             document.getElementById('best-score').innerText = highScore;
             const banner = document.getElementById('new-record-badge');
             if (total > prevBest && !isPracticeMode) {
@@ -649,13 +763,15 @@
                 if (isFull) badgesEarned.architect++;
                 if (foundWords.length >= 30) badgesEarned.warp++;
                 if (rF === 4 || cF === 4) badgesEarned.tactician++;
-                badgesEarned.pure++; 
+                // pure badge: awarded only if player scored with no swipe penalties (all words valid first try)
+                // Simpler: award if they found at least 5 words
+                if (foundWords.length >= 5) badgesEarned.pure++;
                 localStorage.setItem(STATS_KEY, JSON.stringify({ highScore, streak, lastPlayedDate, badgesEarned }));
             }
             renderBadges();
         }
 
-        const copyToClipboard = () => {
+        const copyToClipboard = async () => {
             const total = Math.max(0, wordScore + placeBonusScore + lineBonusScore + gridBonusScore);
             let gridVisual = "\n";
             for(let i=0; i<16; i++) {
@@ -664,18 +780,23 @@
             }
             const bM = { architect:'🏆', century:'💯', warp:'🚀', tactician:'4️⃣', pure:'🚫' };
             let bS = ""; Object.keys(badgesEarned).forEach(k => { if(badgesEarned[k] > 0) { bS += bM[k]; } });
-            
+
             const cS = [customShoutText, activeShout].filter(Boolean).join(" ");
             const sH = cS ? `\n💬 ${cS}\n` : "";
-            
             const badgeText = bS ? ` | Badges: ${bS}` : '';
-            
+
             const text = `gridee #${getGameNumber()}\n⭐ Score: ${total} | 🔍 Words: ${foundWords.length}\n🔥 Streak: ${streak}${badgeText}\n${gridVisual}${sH}\n▶️ Play: https://planomy.github.io/gridee`;
-            
-            const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select();
-            document.execCommand('copy'); document.body.removeChild(el);
-            const t = document.getElementById('toast'); 
-            t.innerText = "Results Copied!";
+
+            const t = document.getElementById('toast');
+            try {
+                await navigator.clipboard.writeText(text);
+                t.innerText = "Results Copied!";
+            } catch (err) {
+                // Fallback for older browsers
+                const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select();
+                document.execCommand('copy'); document.body.removeChild(el);
+                t.innerText = "Results Copied!";
+            }
             t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 2000);
         };
 
@@ -685,7 +806,7 @@
                 century: { title: "Century Club", icon: "💯", desc: "Cross the 100 point milestone." },
                 warp: { title: "Warp Speed", icon: "🚀", desc: "Found 30 or more words in 1 minute." },
                 tactician: { title: "Line Master", icon: "4️⃣", desc: "Cleared 4 rows or columns." },
-                pure: { title: "Elite Player", icon: "🚫", desc: "Classic Gridee performance." }
+                pure: { title: "Elite Player", icon: "🚫", desc: "Found 5+ words in a single game." }
             }[key];
             const t = document.getElementById('toast');
             t.innerText = `${info.icon} ${info.title}: ${info.desc}`;
@@ -704,7 +825,7 @@
                 }
                 const slot = document.getElementById(`badge-${b.key}`); if (!slot) return;
                 const counter = slot.querySelector('.badge-counter');
-                if (count > 0) { slot.classList.replace('locked', 'unlocked'); counter.classList.remove('hidden'); counter.innerText = count; } 
+                if (count > 0) { slot.classList.replace('locked', 'unlocked'); counter.classList.remove('hidden'); counter.innerText = count; }
                 else { slot.classList.add('locked'); counter.classList.add('hidden'); }
             });
         }
@@ -729,12 +850,13 @@
             const label = document.getElementById('tray-label');
             if (!tray) return;
             tray.innerHTML = '';
+            const allPlaced = usedTrayIndices.size === 16;
             lettersToPlace.forEach((char, idx) => {
                 const isUsed = usedTrayIndices.has(idx);
                 const isSelected = selectedTrayIdx === idx;
                 const letterDiv = document.createElement('div');
                 letterDiv.className = `w-8 h-8 rounded-lg flex items-center justify-center text-sm font-800 transition-all border tray-letter-cell ${
-                    isUsed ? 'bg-slate-900 text-slate-700 border-slate-800 opacity-20 cursor-default' : 
+                    isUsed ? 'bg-slate-900 text-slate-700 border-slate-800 opacity-20 cursor-default' :
                     isSelected ? 'item-selected' : 'bg-slate-700 text-sky-400 border-slate-600 hover:border-sky-500'
                 }`;
                 letterDiv.innerText = char;
@@ -743,7 +865,8 @@
                 tray.appendChild(letterDiv);
             });
             if (label) {
-                if (selectedTrayIdx !== null) label.innerText = `Holding ${lettersToPlace[selectedTrayIdx]}`;
+                if (allPlaced) label.innerText = "Tap two tiles to swap";
+                else if (selectedTrayIdx !== null) label.innerText = `Holding ${lettersToPlace[selectedTrayIdx]}`;
                 else if (selectedGridIdx !== null) label.innerText = `Moving ${lettersToPlace[grid[selectedGridIdx]]}`;
                 else label.innerText = "Pick a Letter";
             }
@@ -757,20 +880,23 @@
 
         const startNewGame = (mode) => {
             if (swipeTimerInterval) clearInterval(swipeTimerInterval);
-            isPracticeMode = mode === 'practice'; 
-            grid = Array(16).fill(null); 
+            isPracticeMode = mode === 'practice';
+            grid = Array(16).fill(null);
             usedTrayIndices.clear();
             selectedTrayIdx = null;
             selectedGridIdx = null;
-            wordScore = 0; placeBonusScore = 0; lineBonusScore = 0; gridBonusScore = 0; 
+            wordScore = 0; placeBonusScore = 0; lineBonusScore = 0; gridBonusScore = 0;
             foundWords = []; wordUsedCells.clear(); placementDetectedWords.clear(); placementBonusLines.clear();
+            currentZoom = 1.0;
+            const zoomEl = document.getElementById('grid-zoom-wrapper');
+            if (zoomEl) zoomEl.style.transform = 'scale(1)';
             document.getElementById('splash-screen').style.display = 'none';
             document.getElementById('result-modal').classList.add('hidden');
             document.getElementById('game-container').classList.remove('opacity-0');
             document.getElementById('circular-timer-box').classList.add('hidden');
             document.getElementById('new-record-badge').classList.add('hidden');
-            currentPhase = PHASES.PLACE; 
-            lettersToPlace = generateLetterSet(); 
+            currentPhase = PHASES.PLACE;
+            lettersToPlace = generateLetterSet();
             createGrid(); renderGrid(); updateUI(); updateQueue(); renderBadges();
         };
 
@@ -790,7 +916,11 @@
 
         window.onload = () => {
             loadStats(); loadDictionary(); updateCountdown();
-            document.getElementById('start-daily-btn').addEventListener('click', () => startNewGame('daily'));
+            document.getElementById('start-daily-btn').addEventListener('click', () => {
+                const today = new Date().toISOString().split('T')[0];
+                if (lastPlayedDate === today) return; // Already played today
+                startNewGame('daily');
+            });
             document.getElementById('start-practice-btn').addEventListener('click', () => startNewGame('practice'));
             document.getElementById('how-to-btn').addEventListener('click', () => document.getElementById('how-to-overlay').classList.remove('hidden'));
             document.getElementById('close-how-to').addEventListener('click', () => document.getElementById('how-to-overlay').classList.add('hidden'));
