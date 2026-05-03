@@ -28,7 +28,7 @@
         }
 
         header { padding-top: max(8px, env(safe-area-inset-top)); margin-bottom: 4px; z-index: 50; width: 100%; display: flex; justify-content: center; }
-        #game-container { margin-top: 0; padding-top: 0px; flex: 1; display: flex; flex-direction: column; width: 100%; max-width: 28rem; }
+        #game-container { margin-top: 0; padding-top: 0px; flex: 1; min-height: 0; display: flex; flex-direction: column; width: 100%; }
 
         .grid-cell {
             aspect-ratio: 1 / 1; transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.1s ease;
@@ -92,11 +92,26 @@
 
         #game-grid { max-height: 52dvh; aspect-ratio: 1 / 1; width: 100%; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 4px; box-sizing: border-box; }
 
-        /* Pinch zoom wrapper */
+        /* Pinch zoom: tray + grid scale together */
+        /* Pinch applies to header + main: one locked “game screen” */
+        #play-area-pinch-root {
+            width: 100%;
+            max-width: 28rem;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: visible;
+        }
         #grid-zoom-wrapper {
             transform-origin: center center;
             transition: transform 0.05s ease-out;
             width: 100%;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
         }
 
         .shout-chip { flex: 0 0 auto; padding: 8px 16px; border-radius: 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.85rem; transition: all 0.2s ease; cursor: pointer; color: #f8fafc; white-space: nowrap; }
@@ -205,69 +220,71 @@
                 </div>
                 <div class="flex gap-4 items-start">
                     <span class="w-8 h-8 shrink-0 bg-sky-500 rounded-lg flex items-center justify-center text-slate-950 font-800 text-sm">3</span>
-                    <p class="text-slate-300 leading-relaxed font-semibold">Hit "I'M DONE" to start the 60-second timer and swipe words! Pinch to zoom the grid.</p>
+                    <p class="text-slate-300 leading-relaxed font-semibold">Hit "I'M DONE" to start the 3-minute timer and swipe words! Pinch anywhere on the game screen to zoom it all together.</p>
                 </div>
             </div>
             <button id="close-how-to" class="px-12 py-4 bg-sky-500 text-slate-950 rounded-2xl font-800 uppercase tracking-widest text-xs active:scale-95 transition-all">Got it</button>
         </div>
     </div>
 
-    <header class="w-full max-w-md flex justify-between items-center px-4 shrink-0 overflow-visible">
-        <div class="flex items-center gap-1.5">
-            <h1 class="text-2xl font-800 tracking-tighter text-white leading-none">gridee</h1>
-            <div id="badge-bar-hud" class="flex gap-1 ml-1.5 opacity-80 h-3 cursor-pointer"></div>
-        </div>
-        <div class="text-right">
-            <div id="score-display" class="text-2xl font-800 text-white leading-none">0</div>
-            <div class="text-[7px] font-extrabold text-slate-500 uppercase tracking-widest">Score</div>
-        </div>
-    </header>
+    <div id="play-area-pinch-root" class="relative w-full max-w-md flex flex-col flex-1 min-h-0 overflow-visible">
+        <div id="grid-zoom-wrapper">
+            <header class="w-full flex justify-between items-center px-4 shrink-0 overflow-visible">
+                <div class="flex items-center gap-1.5">
+                    <h1 class="text-2xl font-800 tracking-tighter text-white leading-none">gridee</h1>
+                    <div id="badge-bar-hud" class="flex gap-1 ml-1.5 opacity-80 h-3 cursor-pointer"></div>
+                </div>
+                <div class="text-right">
+                    <div id="score-display" class="text-2xl font-800 text-white leading-none">0</div>
+                    <div class="text-[7px] font-extrabold text-slate-500 uppercase tracking-widest">Score</div>
+                </div>
+            </header>
 
-    <main id="game-container" class="w-full max-w-md flex flex-col flex-1 opacity-0 transition-opacity duration-500 px-4 overflow-visible relative">
-        <div class="flex justify-between gap-1 mb-2 shrink-0 relative h-6 items-center">
-            <div id="step-1-progress" class="h-1.5 flex-1 bg-sky-500/20 rounded-full overflow-hidden relative">
-                <div id="progress-bar-fill" class="absolute inset-0 bg-sky-500 w-0 transition-all duration-300"></div>
-            </div>
-            <div id="word-feedback" class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-[60] bg-black border border-orange-500/30 px-3 py-0.5 rounded-full font-800 text-[10px] tracking-widest text-center pointer-events-none opacity-0 transition-all duration-300 whitespace-nowrap text-orange-500 shadow-2xl">COOL!</div>
-        </div>
-
-        <div id="hud-bar">
-            <div id="right-hud-content" class="flex flex-col items-center gap-2 w-full min-h-[84px] relative">
-                <div id="queue-box" class="w-full flex flex-col items-center transition-all duration-300">
-                    <div id="letter-tray" class="grid grid-cols-8 gap-1.5 mb-2"></div>
-                    <div id="tray-label" class="text-[8px] font-bold text-sky-500/50 uppercase tracking-[0.2em] mb-2">Pick a Letter</div>
+            <main id="game-container" class="w-full flex flex-col flex-1 min-h-0 opacity-0 transition-opacity duration-500 px-4 overflow-visible relative">
+                <div class="flex justify-between gap-1 mb-2 shrink-0 relative h-6 items-center">
+                    <div id="step-1-progress" class="h-1.5 flex-1 bg-sky-500/20 rounded-full overflow-hidden relative">
+                        <div id="progress-bar-fill" class="absolute inset-0 bg-sky-500 w-0 transition-all duration-300"></div>
+                    </div>
+                    <div id="word-feedback" class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-[60] bg-black border border-orange-500/30 px-3 py-0.5 rounded-full font-800 text-[10px] tracking-widest text-center pointer-events-none opacity-0 transition-all duration-300 whitespace-nowrap text-orange-500 shadow-2xl">COOL!</div>
                 </div>
 
-                <div id="done-btn-container" class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
-                    <button id="done-action-btn" style="background: var(--pink-purple);" class="w-full py-4 text-white rounded-2xl font-800 uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all">
-                        I'M DONE
-                    </button>
+                <div id="hud-bar">
+                    <div id="right-hud-content" class="flex flex-col items-center gap-2 w-full min-h-[84px] relative">
+                        <div id="queue-box" class="w-full flex flex-col items-center transition-all duration-300">
+                            <div id="letter-tray" class="grid grid-cols-8 gap-1.5 mb-2"></div>
+                            <div id="tray-label" class="text-[8px] font-bold text-sky-500/50 uppercase tracking-[0.2em] mb-2">Pick a Letter</div>
+                        </div>
+
+                        <div id="done-btn-container" class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+                            <button id="done-action-btn" style="background: var(--pink-purple);" class="w-full py-4 text-white rounded-2xl font-800 uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all">
+                                I'M DONE
+                            </button>
+                        </div>
+
+                        <div id="circular-timer-box" class="hidden relative w-20 h-20 flex items-center justify-center">
+                            <svg class="timer-circle" width="80" height="80">
+                                <circle class="timer-bg" cx="40" cy="40" r="36"></circle>
+                                <circle id="timer-progress" class="timer-progress" cx="40" cy="40" r="36"></circle>
+                            </svg>
+                            <span id="timer-text" class="absolute text-lg font-800 text-sky-400 tracking-tighter tabular-nums">3:00</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="circular-timer-box" class="hidden relative w-20 h-20 flex items-center justify-center">
-                    <svg class="timer-circle" width="80" height="80">
-                        <circle class="timer-bg" cx="40" cy="40" r="36"></circle>
-                        <circle id="timer-progress" class="timer-progress" cx="40" cy="40" r="36"></circle>
-                    </svg>
-                    <span id="timer-text" class="absolute text-xl font-800 text-sky-400 tracking-tighter">60</span>
+                <div id="game-grid-container" class="relative group shrink-0 mb-1 overflow-visible z-10 w-full">
+                    <div id="game-grid"></div>
+                    <div id="zoom-hint">pinch to zoom</div>
+                    <div id="time-up-overlay">
+                        <button id="time-up-btn" class="bg-slate-950 border-2 border-sky-500/30 text-white font-800 px-10 py-5 rounded-3xl shadow-2xl scale-125 transition-transform uppercase tracking-tighter">TIME UP!</button>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div id="game-grid-container" class="relative group shrink-0 mb-1 overflow-visible z-10">
-            <div id="grid-zoom-wrapper">
-                <div id="game-grid"></div>
-            </div>
-            <div id="zoom-hint">pinch to zoom</div>
-            <div id="time-up-overlay">
-                <button id="time-up-btn" class="bg-slate-950 border-2 border-sky-500/30 text-white font-800 px-10 py-5 rounded-3xl shadow-2xl scale-125 transition-transform uppercase tracking-tighter">TIME UP!</button>
-            </div>
+                <div id="swipe-hint" class="hidden w-full text-center mt-4 shrink-0">
+                    <span class="text-sky-400/30 font-800 text-[10px] uppercase tracking-[0.4em] animate-pulse">Swipe Words in the Grid</span>
+                </div>
+            </main>
         </div>
-
-        <div id="swipe-hint" class="hidden w-full text-center mt-4">
-            <span class="text-sky-400/30 font-800 text-[10px] uppercase tracking-[0.4em] animate-pulse">Swipe Words in the Grid</span>
-        </div>
-    </main>
+    </div>
 
     <div id="result-modal" class="fixed inset-0 hidden flex-col items-center p-4 z-[300] results-overlay">
         <div class="w-full max-w-sm m-auto flex flex-col items-center text-center py-8 px-4 relative">
@@ -292,10 +309,11 @@
                 </div>
                 <div id="new-record-badge" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-orange-500 text-slate-950 px-8 py-2 rounded-full font-800 text-sm shadow-2xl z-50 whitespace-nowrap scale-115 record-banner-active">NEW RECORD!</div>
             </div>
-            <div class="flex flex-col items-center mb-4">
+            <div class="flex flex-col items-center mb-3">
                 <div id="final-score" class="text-8xl font-800 tracking-tighter text-white leading-none">0</div>
                 <span class="text-slate-500 uppercase tracking-[0.4em] text-[10px] font-800 mt-2">Total Score</span>
             </div>
+            <p id="result-swipe-summary" class="text-slate-400 text-[11px] font-semibold mb-5 px-3 leading-relaxed text-center max-w-xs"></p>
             <div class="w-full mb-6 text-left">
                 <div id="shout-chips" class="flex gap-2 overflow-x-auto pb-2 no-scrollbar mb-3">
                     <button class="shout-chip active" onclick="updateShout(this, '')">None</button>
@@ -321,7 +339,15 @@
         }
 
         const STATS_KEY = "gridee_device_stats_v3";
+        const SWIPE_SECONDS = 180;
         const TIME_UP_PHRASES = ["That's it amigo", "Whoah stop!", "That'll do", "Muchos gracias", "Stop, in the name of love"];
+
+        function formatSwipeTime(secs) {
+            const s = Math.max(0, Math.floor(secs));
+            const m = Math.floor(s / 60);
+            const r = s % 60;
+            return `${m}:${String(r).padStart(2, '0')}`;
+        }
 
         let highScore = 0, streak = 0, lastPlayedDate = null;
         let badgesEarned = { century: 0, architect: 0, warp: 0, tactician: 0, pure: 0 };
@@ -335,11 +361,12 @@
         let selectedGridIdx = null;
 
         let wordScore = 0, placeBonusScore = 0, lineBonusScore = 0, gridBonusScore = 0;
-        let foundWords = [], placementBonusLines = new Set(), placementDetectedWords = new Set();
+        let foundWords = [], longestSwipedWord = '';
+        let placementBonusLines = new Set(), placementDetectedWords = new Set();
         let wordUsedCells = new Set(), isPracticeMode = false, isSwiping = false;
         let currentSwipePath = [], swipeWord = "", hoveredCellIdx = null;
         let activeShout = "", customShoutText = "";
-        let swipeTimerInterval = null, swipeTimeRemaining = 60;
+        let swipeTimerInterval = null, swipeTimeRemaining = SWIPE_SECONDS;
 
         // Pinch zoom state
         let currentZoom = 1.0;
@@ -354,7 +381,7 @@
             try {
                 const r = await fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt');
                 const text = await r.text();
-                const words = text.split('\r\n');
+                const words = text.split(/\r?\n/);
                 DICTIONARY.clear();
                 words.forEach(w => {
                     const word = w.trim().toUpperCase();
@@ -464,6 +491,9 @@
             }
         }
 
+        let grideeGlobalPointerBound = false;
+        let grideeGridTouchMoveBound = false;
+
         function createGrid() {
             const container = document.getElementById('game-grid'); if (!container) return;
             container.innerHTML = '';
@@ -476,32 +506,40 @@
                 cell.addEventListener('mouseenter', () => { if (isSwiping || currentPhase === PHASES.PLACE) handleInteraction(i, 'move'); });
                 container.appendChild(cell);
             }
-            window.addEventListener('mouseup', () => handleInteraction(null, 'end'));
-            window.addEventListener('touchend', (e) => {
-                // Only end swipe if it's not a pinch ending
-                if (e.touches.length === 0) handleInteraction(null, 'end');
-            });
-            container.addEventListener('touchmove', (e) => {
-                // If 2 fingers, let pinch handler deal with it
-                if (e.touches.length >= 2) return;
-                e.preventDefault();
-                const touch = e.touches[0];
-                const el = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (el?.classList.contains('grid-cell') || el?.parentElement?.classList.contains('grid-cell')) {
-                    const cellEl = el.classList.contains('grid-cell') ? el : el.parentElement;
-                    handleInteraction(parseInt(cellEl.dataset.index), 'move');
-                }
-            }, { passive: false });
+            if (!grideeGlobalPointerBound) {
+                grideeGlobalPointerBound = true;
+                window.addEventListener('mouseup', () => handleInteraction(null, 'end'));
+                window.addEventListener('touchend', (e) => {
+                    if (e.touches.length === 0) handleInteraction(null, 'end');
+                });
+            }
+            if (!grideeGridTouchMoveBound) {
+                grideeGridTouchMoveBound = true;
+                container.addEventListener('touchmove', (e) => {
+                    if (e.touches.length >= 2) return;
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+                    if (el?.classList.contains('grid-cell') || el?.parentElement?.classList.contains('grid-cell')) {
+                        const cellEl = el.classList.contains('grid-cell') ? el : el.parentElement;
+                        handleInteraction(parseInt(cellEl.dataset.index), 'move');
+                    }
+                }, { passive: false });
+            }
 
             setupPinchZoom();
         }
 
-        // ---- PINCH ZOOM ----
+        // ---- PINCH ZOOM (header + progress + tray + grid + hints: shared transform on #grid-zoom-wrapper) ----
+        let pinchZoomListenersBound = false;
         function setupPinchZoom() {
-            const wrapper = document.getElementById('game-grid-container');
+            if (pinchZoomListenersBound) return;
+            const root = document.getElementById('play-area-pinch-root');
             const zoomEl = document.getElementById('grid-zoom-wrapper');
+            if (!root || !zoomEl) return;
+            pinchZoomListenersBound = true;
 
-            wrapper.addEventListener('touchstart', (e) => {
+            root.addEventListener('touchstart', (e) => {
                 if (e.touches.length === 2) {
                     e.preventDefault();
                     pinchStartDist = getPinchDist(e.touches);
@@ -509,7 +547,7 @@
                 }
             }, { passive: false });
 
-            wrapper.addEventListener('touchmove', (e) => {
+            root.addEventListener('touchmove', (e) => {
                 if (e.touches.length === 2) {
                     e.preventDefault();
                     const dist = getPinchDist(e.touches);
@@ -519,18 +557,16 @@
                 }
             }, { passive: false });
 
-            wrapper.addEventListener('touchend', (e) => {
+            root.addEventListener('touchend', (e) => {
                 if (e.touches.length < 2) {
-                    // Snap back to 1 if close to 1
                     if (currentZoom < 1.15) {
                         currentZoom = 1.0;
-                        zoomEl.style.transform = `scale(1)`;
+                        zoomEl.style.transform = 'scale(1)';
                     }
                 }
             });
 
-            // Mouse wheel zoom for desktop testing
-            wrapper.addEventListener('wheel', (e) => {
+            root.addEventListener('wheel', (e) => {
                 e.preventDefault();
                 const delta = e.deltaY > 0 ? -0.1 : 0.1;
                 currentZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, currentZoom + delta));
@@ -644,7 +680,9 @@
                 }
                 return;
             }
-            foundWords.push(swipeWord); currentSwipePath.forEach(i => wordUsedCells.add(i));
+            foundWords.push(swipeWord);
+            if (swipeWord.length > longestSwipedWord.length) longestSwipedWord = swipeWord;
+            currentSwipePath.forEach(i => wordUsedCells.add(i));
             let pts = swipeWord.length === 3 ? 1 : swipeWord.length === 4 ? 2 : swipeWord.length === 5 ? 3 : 5;
             let lineBonus = 0;
             if (swipeWord.length === 4) {
@@ -717,13 +755,16 @@
         }
 
         function startSwipeTimer() {
-            swipeTimeRemaining = 60; const progress = document.getElementById('timer-progress');
+            swipeTimeRemaining = SWIPE_SECONDS;
+            const progress = document.getElementById('timer-progress');
             const text = document.getElementById('timer-text');
             const circumference = 2 * Math.PI * 36;
+            if (text) text.innerText = formatSwipeTime(swipeTimeRemaining);
             if (progress) { progress.style.strokeDasharray = circumference; progress.style.strokeDashoffset = 0; }
             swipeTimerInterval = setInterval(() => {
-                swipeTimeRemaining--; if (text) text.innerText = swipeTimeRemaining;
-                if (progress) progress.style.strokeDashoffset = circumference - (swipeTimeRemaining / 60) * circumference;
+                swipeTimeRemaining--;
+                if (text) text.innerText = formatSwipeTime(swipeTimeRemaining);
+                if (progress) progress.style.strokeDashoffset = circumference - (swipeTimeRemaining / SWIPE_SECONDS) * circumference;
                 if (swipeTimeRemaining <= 0) { clearInterval(swipeTimerInterval); handleTimeUp(); }
             }, 1000);
         }
@@ -737,6 +778,14 @@
         async function showResults() {
             currentPhase = PHASES.RESULT;
             document.getElementById('result-modal').classList.replace('hidden', 'flex');
+            const swipeSummaryEl = document.getElementById('result-swipe-summary');
+            if (swipeSummaryEl) {
+                if (longestSwipedWord) {
+                    swipeSummaryEl.innerText = `${foundWords.length} word${foundWords.length === 1 ? '' : 's'} swiped · longest: ${longestSwipedWord} (${longestSwipedWord.length} letters)`;
+                } else {
+                    swipeSummaryEl.innerText = `${foundWords.length} word${foundWords.length === 1 ? '' : 's'} swiped · longest: —`;
+                }
+            }
             let rF = 0, cF = 0;
             for(let i=0; i<4; i++) {
                 const rS = grid.slice(i*4, i*4+4).map(idx => lettersToPlace[idx]).join(""); if (DICTIONARY.has(rS)) rF++;
@@ -785,7 +834,10 @@
             const sH = cS ? `\n💬 ${cS}\n` : "";
             const badgeText = bS ? ` | Badges: ${bS}` : '';
 
-            const text = `gridee #${getGameNumber()}\n⭐ Score: ${total} | 🔍 Words: ${foundWords.length}\n🔥 Streak: ${streak}${badgeText}\n${gridVisual}${sH}\n▶️ Play: https://planomy.github.io/gridee`;
+            const longestLine = longestSwipedWord
+                ? `📏 Longest: ${longestSwipedWord} (${longestSwipedWord.length})`
+                : `📏 Longest: —`;
+            const text = `gridee #${getGameNumber()}\n⭐ Score: ${total} | 🔍 Words: ${foundWords.length}\n${longestLine}\n🔥 Streak: ${streak}${badgeText}\n${gridVisual}${sH}\n▶️ Play: https://planomy.github.io/gridee`;
 
             const t = document.getElementById('toast');
             try {
@@ -804,7 +856,7 @@
             const info = {
                 architect: { title: "Holy Grail", icon: "🏆", desc: "Clear all 4 rows AND all 4 columns." },
                 century: { title: "Century Club", icon: "💯", desc: "Cross the 100 point milestone." },
-                warp: { title: "Warp Speed", icon: "🚀", desc: "Found 30 or more words in 1 minute." },
+                warp: { title: "Warp Speed", icon: "🚀", desc: "Found 30 or more words before the swipe timer ends." },
                 tactician: { title: "Line Master", icon: "4️⃣", desc: "Cleared 4 rows or columns." },
                 pure: { title: "Elite Player", icon: "🚫", desc: "Found 5+ words in a single game." }
             }[key];
@@ -886,7 +938,8 @@
             selectedTrayIdx = null;
             selectedGridIdx = null;
             wordScore = 0; placeBonusScore = 0; lineBonusScore = 0; gridBonusScore = 0;
-            foundWords = []; wordUsedCells.clear(); placementDetectedWords.clear(); placementBonusLines.clear();
+            foundWords = []; longestSwipedWord = '';
+            wordUsedCells.clear(); placementDetectedWords.clear(); placementBonusLines.clear();
             currentZoom = 1.0;
             const zoomEl = document.getElementById('grid-zoom-wrapper');
             if (zoomEl) zoomEl.style.transform = 'scale(1)';
